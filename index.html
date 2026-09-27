@@ -1,0 +1,1608 @@
+<title>L'Affaire de la Benne 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Kalam:wght@400;700&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --chrome:#16202A; --chrome-2:#223140; --line:#33475A;
+  --paper:#EEF1EA; --paper-ink:#1F2A33; --muted:#5E6B73;
+  --vis:#F2C230; --vis-ink:#2A2206; --vis-shadow:#B38B12;
+  --rust:#E0703A; --good:#2F6B3A; --bad:#B4461A; --coo:#3F5896;
+  --text:#E7ECEF; --text-dim:#9FB0BC;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --hand:"Kalam","Comic Sans MS",cursive;
+}
+html,body{height:100%}
+body{background:var(--chrome);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.app{height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:10px;padding-inline:16px;padding-block:10px}
+
+/* HUD */
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
+.chap .eyebrow{display:block;white-space:nowrap;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim)}
+.chap{min-width:0;flex:1 1 auto}
+.chap strong{display:block;font-family:var(--display);font-weight:800;font-size:19px;line-height:1.05;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats{flex:none}
+.stats{display:flex;gap:6px;align-items:center}
+.stat{display:flex;align-items:center;gap:5px;background:var(--chrome-2);border-radius:999px;padding:4px 10px 3px 7px;font-variant-numeric:tabular-nums;font-weight:700;font-size:15px}
+.stat svg{width:18px;height:18px;flex:none}
+.stat small{color:var(--text-dim);font-weight:400;font-size:11px}
+.hud-btn{font-family:var(--display);font-weight:800;font-size:15px;background:var(--chrome-2);color:var(--vis);border:0;border-radius:999px;padding:5px 12px 3px;box-shadow:inset 0 0 0 2px var(--vis);cursor:pointer}
+.hud-btn.snd{width:32px;height:32px;padding:0;display:grid;place-items:center;flex:none}
+.hud-btn.snd svg{width:18px;height:18px}
+.hud-btn.snd[aria-pressed="false"]{color:var(--text-dim);box-shadow:inset 0 0 0 2px var(--line)}
+
+/* Stage */
+.stage{position:relative;flex:none;width:100%;max-width:100%;aspect-ratio:4/3;max-height:54vh;border-radius:16px;overflow:hidden;background:#0E151C;box-shadow:0 0 0 2px var(--line);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.stage > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage.hunt{cursor:crosshair}
+.rain{animation:rain .55s linear infinite;pointer-events:none}
+.rain line{stroke:#DCE6EE;stroke-opacity:.35;stroke-width:1;stroke-linecap:round}
+@keyframes rain{from{transform:translateY(-60px)}to{transform:translateY(0)}}
+.ring{animation:ring .45s steps(2) infinite}
+@keyframes ring{50%{opacity:0}}
+.glint{animation:glint 3.4s ease-in-out infinite}
+@keyframes glint{0%,84%,100%{opacity:1}92%{opacity:.4}}
+#pipo.bob{animation:bob .35s ease-in-out 3}
+@keyframes bob{50%{transform:translate(262px,64px)}}
+.pop{animation:pop .35s ease-out both;transform-box:fill-box;transform-origin:center}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.fade{animation:fade .9s ease-out forwards}
+@keyframes fade{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
+
+.title-ov{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;padding:16px;background:linear-gradient(to top,rgba(14,21,28,.94) 0%,rgba(14,21,28,.6) 42%,rgba(14,21,28,0) 72%)}
+.logo{font-family:var(--display);font-weight:800;font-size:clamp(30px,9vw,44px);line-height:.92;color:var(--vis);text-shadow:0 3px 0 #0E151C;margin:0;text-wrap:balance}
+.logo span{display:block;color:#fff;font-size:.5em;letter-spacing:.03em;line-height:1.1}
+.title-ov p{margin:0;color:var(--text-dim);font-size:14px}
+
+.toast{position:absolute;left:10px;right:10px;bottom:10px;background:rgba(22,32,42,.94);color:var(--text);border-radius:10px;padding:8px 12px;font-size:14px;transform:translateY(16px);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;display:flex;gap:8px;align-items:center}
+.toast.show{opacity:1;transform:none}
+.toast svg{width:20px;height:20px;flex:none}
+
+/* Panel */
+.panel{flex:1 1 auto;min-height:190px;background:var(--paper);color:var(--paper-ink);border-radius:16px;padding:14px 16px;overflow:auto;position:relative}
+.panel h2{font-family:var(--display);font-weight:800;font-size:22px;line-height:1.1;margin:0;text-wrap:balance}
+.eyebrow.dark{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:10px;min-height:100%}
+
+.who{display:flex;align-items:center;gap:10px}
+.pf{width:64px;height:64px;border-radius:50%;overflow:hidden;flex:none;box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--paper-ink)}
+.pf svg,.pf img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 25%}
+.tag{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.08em;text-transform:uppercase;background:var(--paper-ink);color:var(--vis);padding:3px 10px 1px;border-radius:6px}
+.line{font-size:17px;margin:0;min-height:3.2em}
+.narr .line{font-style:italic;color:var(--muted)}
+.next{margin-top:auto;align-self:flex-end;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.next::after{content:"";border-left:8px solid var(--paper-ink);border-top:5px solid transparent;border-bottom:5px solid transparent;animation:nudge 1s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateX(3px)}}
+.choices{display:flex;flex-direction:column;gap:8px}
+
+.btn{font-family:var(--display);font-weight:800;font-size:17px;border:0;border-radius:12px;padding:11px 16px 8px;background:var(--vis);color:var(--vis-ink);box-shadow:0 3px 0 var(--vis-shadow);cursor:pointer}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--vis-shadow)}
+.btn:disabled{background:#D5D9D2;color:#7C868B;box-shadow:none;cursor:default}
+.btn.ghost{background:transparent;color:var(--paper-ink);box-shadow:inset 0 0 0 2px var(--paper-ink)}
+.btn.choice{text-align:left;background:#fff;color:var(--paper-ink);font-family:var(--body);font-weight:700;font-size:16px;box-shadow:inset 0 0 0 2px var(--paper-ink),0 3px 0 var(--paper-ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1 1 140px}
+:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
+
+/* Title form */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-weight:700;font-size:14px}
+.field input{font:inherit;font-size:17px;padding:10px 12px;border-radius:10px;border:2px solid var(--paper-ink);background:#fff;color:var(--paper-ink);width:100%}
+.seg{display:flex;border:2px solid var(--paper-ink);border-radius:10px;overflow:hidden}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{flex:1;text-align:center;padding:8px 6px 6px;font-family:var(--display);font-weight:800;cursor:pointer}
+.seg input:checked + label{background:var(--paper-ink);color:var(--vis)}
+.seg input:focus-visible + label{outline:3px solid var(--rust);outline-offset:-3px}
+.small{font-size:13px;color:var(--muted);margin:0}
+
+/* Tutorial */
+.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules li{display:flex;gap:10px;align-items:flex-start}
+.rules svg{width:26px;height:26px;flex:none}
+
+/* Puzzle */
+.puz-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.worth{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;background:var(--paper-ink);color:var(--vis);border-radius:999px;padding:3px 10px 2px}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:26px;height:26px;border-radius:50%;border:2px dashed #9AA5AB;display:grid;place-items:center;font-size:13px;font-weight:700;color:#9AA5AB;font-variant-numeric:tabular-nums}
+.dot.on{background:var(--vis);border:2px solid var(--paper-ink);color:var(--paper-ink)}
+.fb{margin:0;min-height:2.9em;font-size:15px}
+.fb.good{color:var(--good)} .fb.bad{color:var(--bad)} .fb.coo{color:var(--coo)}
+.hints{display:flex;flex-direction:column;gap:6px}
+.hint{background:#FFF6CF;border-radius:10px;padding:6px 10px}
+.hint b{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7A6414}
+.hint span{font-family:var(--hand);font-size:17px;line-height:1.3}
+
+/* End */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+.score div{background:#fff;border-radius:10px;padding:8px 10px;box-shadow:inset 0 0 0 2px #D5DBD2}
+.score dt{font-size:12px;color:var(--muted)}
+.score dd{margin:0;font-family:var(--display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.end p{margin:0}
+.soon{font-size:14px;color:var(--muted)}
+
+/* Registre */
+.reg{background:#FBF8EC;border-radius:10px;box-shadow:inset 0 0 0 2px #D8CFAE;padding:10px 12px;overflow-x:auto}
+.reg-h{font-family:var(--display);font-weight:800;font-size:15px;color:#6B5A2A;margin-bottom:6px}
+.reg table{border-collapse:collapse;width:100%;font-size:13px;min-width:300px}
+.reg th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#7A6A40;border-bottom:1.5px solid #CDBF95;padding:4px 5px}
+.reg td{border-bottom:1px solid #E4DBBE;padding:6px 5px;vertical-align:top}
+.reg td.sig{font-family:var(--hand);font-size:16px;color:#2B4E60}
+.reg tr.hl td{background:#FFE9A8}
+.reg tr.hl td.empty{background:#FFD3BD;box-shadow:inset 0 0 0 2px #E0703A}
+/* Exploration */
+.checks{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.checks li{display:flex;gap:8px;align-items:center;font-weight:700}
+.checks .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--paper-ink);display:grid;place-items:center;flex:none;font-size:14px}
+.checks li.ok .box{background:var(--vis)}
+.checks li.ok span:last-child{text-decoration:line-through;color:var(--muted)}
+/* Énigme d'ordre */
+.slots{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.slot{width:100%;text-align:left;font:inherit;font-size:14px;line-height:1.3;border-radius:10px;padding:8px 10px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;border:2px dashed #AAB4B8;background:transparent;color:var(--muted)}
+.slot b{font-family:var(--display);font-weight:800;font-size:16px;min-width:18px;color:var(--paper-ink)}
+.slot.filled{border:2px solid var(--paper-ink);background:#fff;color:var(--paper-ink)}
+.slot.ok{border-color:var(--good);box-shadow:inset 4px 0 0 var(--good)}
+.pool{display:flex;flex-direction:column;gap:6px}
+.card{width:100%;text-align:left;font:inherit;font-size:14px;line-height:1.3;border:0;border-radius:10px;padding:9px 10px;background:var(--paper-ink);color:#fff;cursor:pointer;display:flex;gap:10px}
+.card b{font-family:var(--display);font-weight:800;color:var(--vis);font-size:16px}
+.sub{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:2px 0 -2px}
+/* Ticket */
+.ticket{background:#fff;max-width:260px;margin:0 auto;padding:12px 14px 14px;font-family:"Courier New",ui-monospace,monospace;font-size:13px;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.15);transform:rotate(-1.5deg);border-bottom:6px dotted #EEF1EA}
+.ticket .t-shop{text-align:center;font-weight:700;letter-spacing:.05em}
+.ticket .t-sub{text-align:center;font-size:11px;color:#555;margin-bottom:8px}
+.ticket .t-line,.ticket .t-tot{display:flex;justify-content:space-between;gap:10px}
+.ticket .t-tot{border-top:1px dashed #999;margin-top:6px;padding-top:4px;font-weight:700}
+.ticket .t-date{text-align:center;margin-top:8px;font-weight:700;background:#FFE9A8;padding:2px 0}
+.ticket .t-thx{text-align:center;font-size:11px;color:#555;margin-top:4px}
+/* Horloge */
+.facts{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.facts li{display:flex;justify-content:space-between;gap:10px;background:#fff;border-radius:8px;padding:6px 10px;font-size:14px;box-shadow:inset 0 0 0 1.5px #D5DBD2}
+.facts b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock{display:flex;align-items:center;justify-content:center;gap:14px}
+.clock output{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums;min-width:4ch;text-align:center;background:var(--paper-ink);color:var(--vis);border-radius:12px;padding:10px 14px 4px}
+.round{width:48px;height:48px;border-radius:50%;border:0;background:#fff;box-shadow:inset 0 0 0 2px var(--paper-ink),0 3px 0 var(--paper-ink);font-family:var(--display);font-weight:800;font-size:22px;cursor:pointer;color:var(--paper-ink)}
+.round:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--paper-ink),0 1px 0 var(--paper-ink)}
+/* Témoignages */
+.says{display:flex;flex-direction:column;gap:6px}
+.say{display:flex;gap:10px;align-items:center;background:#fff;border-radius:10px;padding:6px 10px 6px 6px;box-shadow:inset 0 0 0 1.5px #D5DBD2}
+.say .pf{width:44px;height:44px;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--paper-ink)}
+.say q{font-size:15px;quotes:"« " " »"}
+.say small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pick button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:12px;border:0;background:#fff;box-shadow:inset 0 0 0 2px var(--paper-ink),0 3px 0 var(--paper-ink);cursor:pointer;font:inherit;font-weight:700;font-size:13px;color:var(--paper-ink)}
+.pick button .pf{width:52px;height:52px}
+.pick button:active{transform:translateY(2px)}
+.qcm{display:flex;flex-direction:column;gap:8px}
+.qcm .btn.choice{font-weight:400}
+.qcm .btn.choice b{font-family:var(--display);margin-right:6px}
+/* Chaîne des causes */
+.causes{display:flex;flex-direction:column;gap:6px}
+.cause{display:flex;gap:10px;align-items:flex-start;text-align:left;font:inherit;font-size:14px;line-height:1.3;border:0;border-radius:10px;padding:9px 10px;background:#fff;color:var(--paper-ink);box-shadow:inset 0 0 0 2px #C9D0CC;cursor:pointer}
+.cause .box{width:20px;height:20px;border-radius:5px;border:2px solid var(--paper-ink);flex:none;display:grid;place-items:center;font-size:13px;margin-top:1px}
+.cause[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--paper-ink);background:#FFF6CF}
+.cause[aria-pressed="true"] .box{background:var(--vis)}
+.cause.ok{box-shadow:inset 0 0 0 2px var(--good)}
+.cause.ko{box-shadow:inset 0 0 0 2px var(--bad);background:#FBE4DA}
+.link-q{background:#fff;border-radius:10px;padding:10px;box-shadow:inset 0 0 0 1.5px #D5DBD2;display:flex;flex-direction:column;gap:6px}
+.link-q p{margin:0;font-weight:700}
+.link-q .opts{display:flex;flex-direction:column;gap:6px}
+.link-q .opts button{text-align:left;font:inherit;font-size:14px;border:0;border-radius:8px;padding:7px 9px;background:#EEF1EA;color:var(--paper-ink);cursor:pointer}
+.link-q .opts button[aria-pressed="true"]{background:var(--paper-ink);color:var(--vis)}
+.link-q.done{box-shadow:inset 0 0 0 2px var(--good)}
+.chain{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;align-items:stretch}
+.chain li{background:#fff;border-radius:10px;padding:8px 10px;font-size:14px;box-shadow:inset 0 0 0 1.5px #D5DBD2;text-align:center}
+.chain li.arrow{background:none;box-shadow:none;padding:0;color:var(--muted);font-size:16px;line-height:1.2}
+.chain li.last{background:var(--paper-ink);color:var(--vis);font-weight:700}
+.rank{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.1;color:var(--paper-ink)}
+/* Carnet */
+.sheet{position:fixed;inset:0;background:rgba(10,15,20,.7);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.sheet-in{width:100%;max-width:480px;max-height:100%;overflow:auto;border-radius:14px;padding:16px 18px 20px;color:var(--paper-ink);
+  background-color:#F7F4E6;background-image:repeating-linear-gradient(to bottom,transparent 0 27px,#C9D6E0 27px 28px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.sheet h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0}
+.sheet h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 2px;color:#8A3B1C}
+.sheet ul{margin:0;padding-left:20px}
+.sheet li,.sheet p{font-family:var(--hand);font-size:17px;line-height:28px;margin:0}
+.sheet .locked{color:#8C969B}
+.close{font-family:var(--display);font-weight:800;border:0;background:var(--paper-ink);color:var(--vis);border-radius:999px;padding:5px 12px 3px;cursor:pointer}
+
+@media (prefers-reduced-motion: reduce){
+  .rain,.ring,.glint,.next::after,#pipo.bob,.pop{animation:none}
+  .toast{transition:none}
+}
+</style>
+
+<div class="app">
+  <header class="hud">
+    <div class="chap"><span class="eyebrow" id="chap-n">Chapitre 1</span><strong id="chap-t">Le quai</strong></div>
+    <div class="stats">
+      <div class="stat" title="Points Vigilance">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1.5 10 C4.5 4.5 15.5 4.5 18.5 10 C15.5 15.5 4.5 15.5 1.5 10Z" fill="none" stroke="#F2C230" stroke-width="1.8"/><circle cx="10" cy="10" r="3.2" fill="#F2C230"/></svg>
+        <b id="hud-pts">0</b><small>pts</small>
+      </div>
+      <div class="stat" title="Boulons dorés">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,1.5 17.4,5.75 17.4,14.25 10,18.5 2.6,14.25 2.6,5.75" fill="#E8B923" stroke="#9A7A12" stroke-width="1.2"/><circle cx="10" cy="10" r="3.4" fill="#16202A"/></svg>
+        <b id="hud-bolts">0</b>
+      </div>
+      <button class="hud-btn snd" id="btn-sound" type="button" aria-pressed="true" aria-label="Son activé" title="Son"></button>
+      <button class="hud-btn" id="btn-carnet" type="button">Carnet</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <!-- SCÈNE : BUREAU / TÉLÉPHONE -->
+    <svg id="sv-phone" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="Un bureau sous la pluie, le téléphone sonne" role="img">
+      <image href="img/decor_bureau.jpg" x="0" y="0" width="1200" height="896"/>
+      <g class="ring" stroke="#F2C230" stroke-width="9" fill="none" stroke-linecap="round">
+        <path d="M672 560 q-22 -34 0 -68"/><path d="M642 576 q-40 -52 0 -104"/>
+        <path d="M802 560 q22 -34 0 -68"/><path d="M832 576 q40 -52 0 -104"/>
+      </g>
+    </svg>
+
+    <!-- SCÈNE : ENTRÉE DE LA DÉCHETTERIE -->
+    <svg id="sv-gate" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="L'entrée de la déchetterie des Peupliers" role="img">
+      <image href="img/decor_entree.jpg" x="0" y="0" width="1200" height="896"/>
+      <g transform="rotate(-1.5 962 198)">
+        <text x="962" y="180" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="46" fill="#2B4E60" textLength="270" lengthAdjust="spacingAndGlyphs">DÉCHETTERIE</text>
+        <text x="962" y="226" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="32" fill="#9A6B1E" textLength="220" lengthAdjust="spacingAndGlyphs">DES PEUPLIERS</text>
+        <text x="962" y="266" text-anchor="middle" font-family="Atkinson Hyperlegible, sans-serif" font-size="20" fill="#3A4650" textLength="250" lengthAdjust="spacingAndGlyphs">Lun–Sam · 9h–12h / 14h–18h</text>
+      </g>
+      <g transform="scale(3)" opacity=".5"><g class="rain"></g></g>
+    </svg>
+
+    <!-- SCÈNE : LE QUAI (image Gemini) -->
+    <svg id="sv-quai" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" aria-label="Le quai de la déchetterie sous la pluie" role="img">
+      <defs>
+        <g id="nut"><polygon points="0,-10 8.7,-5 8.7,5 0,10 -8.7,5 -8.7,-5" fill="#E8B923" stroke="#6E560C" stroke-width="2"/><circle r="3.6" fill="#3A2E10"/></g>
+      </defs>
+      <image href="img/decor_quai.jpg" x="0" y="0" width="1200" height="896" preserveAspectRatio="xMidYMid slice"/>
+      <use href="#nut" x="286" y="350" id="bolt-g" class="glint"/>
+      <use href="#nut" x="413" y="306" id="bolt-a" class="glint"/>
+      <use href="#nut" x="884" y="664" id="bolt-s" class="glint"/>
+      <g id="pipo">
+        <g id="coo" opacity="0">
+          <path d="M612 62 L600 74 L628 62Z" fill="#EEF1EA"/>
+          <rect x="604" y="18" width="120" height="44" rx="22" fill="#EEF1EA" stroke="#1F2A33" stroke-width="2"/>
+          <text x="664" y="48" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="26" fill="#3F5896">Rrrou !</text>
+        </g>
+      </g>
+      <g transform="scale(3)" opacity=".6"><g class="rain"></g></g>
+      <g id="marks"></g>
+      <g id="fx"></g>
+    </svg>
+
+    <!-- SCÈNE : BUNGALOW D'ACCUEIL -->
+    <svg id="sv-bungalow" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="L'intérieur du bungalow d'accueil" role="img">
+      <defs><g id="nut2"><polygon points="0,-10 8.7,-5 8.7,5 0,10 -8.7,5 -8.7,-5" fill="#E8B923" stroke="#6E560C" stroke-width="2"/><circle r="3.6" fill="#3A2E10"/></g></defs>
+      <image href="img/decor_bungalow.jpg" x="0" y="0" width="1200" height="896"/>
+      <g id="planning-ink" opacity="0" font-family="Kalam, 'Comic Sans MS', cursive" font-weight="700">
+        <text x="96" y="182" font-size="26" fill="#2B4E60" textLength="330" lengthAdjust="spacingAndGlyphs">Benne 1 · Encombrants · 8h30 ✓</text>
+        <text x="96" y="232" font-size="26" fill="#2B4E60" textLength="250" lengthAdjust="spacingAndGlyphs">Benne 2 · Bois · 10h00</text>
+        <text x="96" y="286" font-size="26" fill="#2B4E60" textLength="300" lengthAdjust="spacingAndGlyphs">Benne 3 · Cartons · 11h00</text>
+        <path d="M90 277 L402 273" stroke="#C0392B" stroke-width="5" stroke-linecap="round"/>
+        <text x="236" y="350" font-size="46" fill="#C0392B" transform="rotate(-7 236 350)">9h10 ??</text>
+      </g>
+      <use href="#nut2" x="948" y="398" id="bolt-b1" class="glint"/>
+      <use href="#nut2" x="1062" y="768" id="bolt-b2" class="glint"/>
+      <g id="marks2"></g>
+      <g id="fx2"></g>
+    </svg>
+
+    <!-- SCÈNE : CABINE DU CAMION -->
+    <svg id="sv-camion" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="La cabine du camion ampliroll" role="img">
+      <image href="img/decor_camion.jpg" x="0" y="0" width="1200" height="896"/>
+    </svg>
+
+    <!-- SCÈNE : PARKING -->
+    <svg id="sv-parking" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="Le parking de la déchetterie" role="img">
+      <defs><g id="nut3"><polygon points="0,-10 8.7,-5 8.7,5 0,10 -8.7,5 -8.7,-5" fill="#E8B923" stroke="#6E560C" stroke-width="2"/><circle r="3.6" fill="#3A2E10"/></g></defs>
+      <image href="img/decor_parking.jpg" x="0" y="0" width="1200" height="896"/>
+      <use href="#nut3" x="132" y="774" id="bolt-p1" class="glint"/>
+      <use href="#nut3" x="1148" y="566" id="bolt-p2" class="glint"/>
+      <g id="marks3"></g>
+      <g id="fx3"></g>
+    </svg>
+
+    <!-- SCÈNE : BENNE FERRAILLE -->
+    <svg id="sv-ferraille" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="La benne ferraille" role="img">
+      <image href="img/decor_ferraille.jpg" x="0" y="0" width="1200" height="896"/>
+    </svg>
+
+    <!-- SCÈNE : LOCAL À OUTILS -->
+    <svg id="sv-local" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="Le local à outils" role="img">
+      <image href="img/decor_local.jpg" x="0" y="0" width="1200" height="896"/>
+    </svg>
+
+    <!-- SCÈNE : QUAI EN ORDRE (épilogue) -->
+    <svg id="sv-calme" viewBox="0 0 1200 896" preserveAspectRatio="xMidYMid slice" hidden aria-label="Le quai remis en ordre, sous une éclaircie" role="img">
+      <image href="img/decor_quai_calme.jpg" x="0" y="0" width="1200" height="896"/>
+    </svg>
+
+    <div class="title-ov" id="title-ov">
+      <h1 class="logo">L'Affaire de la Benne 3<span>Une enquête de la Commissaire Vigie</span></h1>
+      <p>Chapitre 1 · Le quai &nbsp;·&nbsp; 2 · Le bungalow &nbsp;·&nbsp; 3 · Le parking &nbsp;·&nbsp; 4 · Le local &nbsp;·&nbsp; 5 · Le dénouement</p>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <section class="panel" id="panel" aria-live="polite"></section>
+</div>
+
+<div class="sheet" id="carnet" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="carnet-t">
+    <div class="sheet-head"><h2 id="carnet-t">Carnet d'enquête</h2><button class="close" id="carnet-close" type="button">Fermer</button></div>
+    <div id="carnet-body"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var panel = document.getElementById('panel');
+  var stage = document.getElementById('stage');
+  var svgQ = document.getElementById('sv-quai');
+  var marks = document.getElementById('marks');
+  var fx = document.getElementById('fx');
+  var NS = 'http://www.w3.org/2000/svg';
+
+  /* ---------- Son : bruitages synthétisés + voix ---------- */
+  // Voix enregistrées : identifiant de réplique -> fichier (vide tant que les MP3 ne sont pas fournis)
+  var VOICES = {};
+  ['ep_01','ep_02','ep_03','ep_04','ep_05','ep_06','ep_07','ep_07_f','s0_01','s0_01_f','s0_02','s0_03','s1_01','s1_01_f','s1_02','s1_03','s1_04','s1_04_f','s1_05','s1_06','s2_01','s2_02','s2_03','s2_04','s2_05','s2_06','s2_07','s2_08','s2_09','s2_10','s3_01','s3_02','s3_03','s3_04','s3_05','s3_06','s3_07','s3_08','s4_01','s4_02','s4_03','s4_04','s4_04_f','s4_05','s4_06','s4_07','s4_08','s4_09','s5_01','s5_02','s5_03','s5_04','s5_05','s5_06','s6_01','s6_02','s6_03','s6_04','s6_05','s6_06','s6_07','s6_08','s6_09','s7_01','s7_02','s7_03','s7_04','s7_05','s7_06','s7_07','s7_08','s7_09','s8_01','s8_02','s8_02_f','s8_03','s8_04','s8_05'].forEach(function(k){ VOICES[k] = 'voix/'+k+'.mp3'; });
+  var BLIP = {hortense:410, gege:230, nadine:520, tony:300, brico:600, kevin:380, jeanmi:260};
+  var SND = {on:true, ctx:null, master:null, rainGain:null, voice:null, who:null};
+  try { SND.on = localStorage.getItem('b3-sound') !== 'off'; } catch(e){}
+  function actx(){
+    if (!SND.ctx){
+      var C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+      try { SND.ctx = new C(); } catch(e){ return null; }
+      SND.master = SND.ctx.createGain(); SND.master.gain.value = SND.on ? 1 : 0;
+      SND.master.connect(SND.ctx.destination);
+    }
+    if (SND.ctx.state === 'suspended') SND.ctx.resume();
+    return SND.ctx;
+  }
+  function tone(f, t0, dur, type, vol, glide){
+    var c = SND.ctx; if (!c) return;
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t0);
+    if (glide) o.frequency.exponentialRampToValueAtTime(glide, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(SND.master); o.start(t0); o.stop(t0 + dur + 0.03);
+  }
+  function now(){ return SND.ctx ? SND.ctx.currentTime + 0.02 : 0; }
+  function rain(level){
+    var c = SND.ctx; if (!c) return;
+    if (!SND.rainGain){
+      var len = c.sampleRate * 2, b = c.createBuffer(1, len, c.sampleRate), d = b.getChannelData(0);
+      for (var i=0;i<len;i++) d[i] = Math.random()*2 - 1;
+      var s = c.createBufferSource(); s.buffer = b; s.loop = true;
+      var hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 800;
+      var lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200;
+      SND.rainGain = c.createGain(); SND.rainGain.gain.value = 0;
+      s.connect(hp); hp.connect(lp); lp.connect(SND.rainGain); SND.rainGain.connect(SND.master); s.start();
+    }
+    SND.rainGain.gain.setTargetAtTime(level, c.currentTime, 0.6);
+  }
+  function sfxRing(){
+    if (!SND.ctx) return; var t = now();
+    for (var k=0;k<2;k++) for (var j=0;j<20;j++) tone(j%2 ? 480 : 440, t + k*1.6 + j*0.05, 0.045, 'square', 0.03);
+  }
+  function sfxCoo(){
+    var c = SND.ctx; if (!c) return; var t = now();
+    [[0,340,265],[0.42,300,225]].forEach(function(n){
+      var o = c.createOscillator(), m = c.createGain(), e = c.createGain(), lfo = c.createOscillator(), lg = c.createGain(), lp = c.createBiquadFilter();
+      o.type = 'sine'; o.frequency.setValueAtTime(n[1], t+n[0]); o.frequency.exponentialRampToValueAtTime(n[2], t+n[0]+0.34);
+      lfo.frequency.value = 26; lg.gain.value = 0.5; m.gain.value = 0.5; lfo.connect(lg); lg.connect(m.gain);
+      lp.type = 'lowpass'; lp.frequency.value = 900;
+      e.gain.setValueAtTime(0.0001, t+n[0]); e.gain.exponentialRampToValueAtTime(0.22, t+n[0]+0.06); e.gain.exponentialRampToValueAtTime(0.0001, t+n[0]+0.38);
+      o.connect(m); m.connect(lp); lp.connect(e); e.connect(SND.master);
+      o.start(t+n[0]); lfo.start(t+n[0]); o.stop(t+n[0]+0.4); lfo.stop(t+n[0]+0.4);
+    });
+  }
+  function sfxFound(){ if (!SND.ctx) return; var t = now(); tone(659, t, 0.25, 'triangle', 0.16); tone(988, t+0.09, 0.4, 'triangle', 0.14); }
+  function sfxBolt(){ if (!SND.ctx) return; var t = now(); tone(1760, t, 0.45, 'sine', 0.1); tone(2637, t, 0.3, 'sine', 0.05); tone(2093, t+0.08, 0.45, 'sine', 0.08); tone(3136, t+0.16, 0.35, 'sine', 0.05); }
+  function sfxMiss(){ if (!SND.ctx) return; tone(170, now(), 0.2, 'square', 0.045, 110); }
+  function sfxSuccess(){ if (!SND.ctx) return; var t = now(); [523,659,784].forEach(function(f,i){ tone(f, t+i*0.12, 0.2, 'triangle', 0.14); }); tone(1047, t+0.36, 0.7, 'triangle', 0.15); }
+  function blip(){ if (!SND.ctx || !SND.who || !BLIP[SND.who]) return; tone(BLIP[SND.who] + (Math.random()*30-15), now(), 0.035, 'square', 0.016); }
+  function stopVoice(){ if (SND.voice){ try { SND.voice.pause(); } catch(e){} SND.voice = null; } }
+  function playVoice(id){
+    stopVoice();
+    if (!id || !SND.on) return false;
+    var key = (S.titre === 'Inspectrice' && VOICES[id+'_f']) ? id+'_f' : id;
+    if (!VOICES[key]) return false;
+    try { SND.voice = new Audio(VOICES[key]); SND.voice.play().catch(function(){}); return true; } catch(e){ return false; }
+  }
+  var ICON_ON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5 H6.5 L11 3.5 V16.5 L6.5 12.5 H3Z" fill="currentColor"/><path d="M13.5 7 Q15.5 10 13.5 13 M15.5 5 Q19 10 15.5 15" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+  var ICON_OFF = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5 H6.5 L11 3.5 V16.5 L6.5 12.5 H3Z" fill="currentColor"/><path d="M13.5 7.5 L18 12.5 M18 7.5 L13.5 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  function paintSound(){
+    var b = document.getElementById('btn-sound');
+    b.innerHTML = SND.on ? ICON_ON : ICON_OFF;
+    b.setAttribute('aria-pressed', SND.on ? 'true' : 'false');
+    b.setAttribute('aria-label', SND.on ? 'Son activé' : 'Son coupé');
+  }
+  document.getElementById('btn-sound').onclick = function(){
+    SND.on = !SND.on;
+    try { localStorage.setItem('b3-sound', SND.on ? 'on' : 'off'); } catch(e){}
+    actx();
+    if (SND.master) SND.master.gain.setTargetAtTime(SND.on ? 1 : 0, SND.ctx.currentTime, 0.05);
+    if (!SND.on) stopVoice();
+    paintSound();
+  };
+  paintSound();
+
+  var S;
+  function reset(){
+    S = {name:'', titre:'Inspecteur', total:0, value:30, bolts:0, found:[], boltsFound:[], hints:0, pieces:[], pistes:false, mode:'title', chapter:1, spots:[], v2:40, h2:0, placed:[], score1:null, score2:null, v3:40, h3:0, t3:45, score3:null, v4:50, h4:0, v5:30, h5:0, score4:null, score5:null, v6:80, h6:0, sel:[], links:{}, step6:1, score6:null};
+  }
+  reset();
+
+  /* ---------- Portraits ---------- */
+  var PF = {};
+  ['hortense','gege','nadine','tony','brico','kevin','jeanmi','pipo'].forEach(function(k){
+    PF[k] = '<img src="img/perso_'+k+'.jpg" alt="" width="64" height="64">';
+  });
+  var NAMES = {hortense:'Commissaire Vigie', gege:'Gégé', pipo:'Pipo', nadine:'Nadine', tony:'Tony Benne', brico:'Mme Brico-Laure', kevin:'Kévin', jeanmi:'Jean-Mi Récup'};
+
+  function fill(t){
+    var full = S.name ? S.titre + ' ' + S.name : S.titre;
+    return t.split('{Insp}').join(full).split('{insp}').join(S.titre.toLowerCase());
+  }
+  function esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ---------- Script ---------- */
+  var PROLOGUE = [
+    {scene:'phone'},
+    {who:null, text:"Lundi matin. Il pleut depuis l'aube. Sur ton bureau, le téléphone sonne."},
+    {id:'s0_01', who:'hortense', text:"{Insp}, vous avez fini votre café ?", choices:["Oui, Commissaire.","Lequel ?"]},
+    {id:'s0_02', who:'hortense', text:"Parfait, de toute façon on n'a pas le temps. Un agent blessé à la déchetterie des Peupliers. Rien de grave, mais personne ne sait comment c'est arrivé. Et quand personne ne sait, ça recommence."},
+    {scene:'gate'},
+    {who:null, text:"La voiture se gare devant la déchetterie. Un pigeon se pose sur le capot."},
+    {who:'pipo', text:"Rrrou."},
+    {id:'s0_03', who:'hortense', text:"Ah, le témoin le plus fiable du site. Il ne ment jamais. Il ne parle pas non plus, remarquez."},
+    {tutorial:true},
+    {scene:'quai'},
+    {who:null, text:"Le quai de déchargement, sous la pluie. Gégé est assis au bord, le pied posé sur un seau retourné. Nadine est au téléphone dans le bungalow."},
+    {id:'s1_01', who:'gege', text:"Ah, vous êtes l'{insp} ? Écoutez, j'ai glissé, c'est tout. Quatorze ans que je fais ce quai, je pourrais le faire les yeux fermés."},
+    {id:'s1_02', who:'hortense', text:"C'est un peu ce qui m'inquiète."},
+    {id:'s1_03', who:'gege', text:"Et j'avais mes chaussures de sécurité, hein ! Notez-le bien."},
+    {id:'s1_04', who:'hortense', text:"Noté. {Insp}, avant d'écouter les belles histoires, regardons ce que le quai, lui, a à nous dire."}
+  ];
+  var SUCCESS = [
+    {id:'s1_05', who:'hortense', text:"Sept sur sept. Ce quai n'est pas un lieu de travail, c'est une course d'obstacles."},
+    {id:'s1_06', who:'gege', text:"Bon… vu comme ça."}
+  ];
+
+  var ANOM = [
+    {id:1, r:[870,185,240,120], t:"La barrière du quai est posée contre le grillage au lieu d'être en place."},
+    {id:2, r:[595,335,150,75], t:"Un vide entre le quai et la benne : de quoi y glisser un pied."},
+    {id:3, r:[935,465,265,215], t:"Des cartons détrempés étalés sur le quai : une vraie patinoire."},
+    {id:4, r:[865,740,170,90], t:"Le panneau « Rotation en cours » traîne par terre au lieu de signaler la zone."},
+    {id:5, r:[1030,705,115,100], t:"Le cône de balisage est renversé : la zone n'est plus balisée."},
+    {id:6, r:[290,415,200,230], t:"Quelqu'un est monté dans la benne ferraille !"},
+    {id:7, r:[700,585,60,100], t:"L'extincteur est posé par terre contre les palettes, loin de son support."}
+  ];
+  var BOLTS = [
+    {id:'g', r:[262,326,48,48]},
+    {id:'a', r:[389,282,48,48]},
+    {id:'s', r:[858,642,52,44]}
+  ];
+  var HINTS = [
+    "Ce qui devrait empêcher de tomber n'est pas à sa place.",
+    "Regarde entre le quai et les bennes, pas seulement dessus.",
+    "Tout au fond de l'image, quelqu'un est là où personne ne devrait être. Et quelque chose de rouge se cache près des palettes."
+  ];
+
+  /* ---------- Scenes & rain ---------- */
+  function showScene(id){
+    ['phone','gate','quai','bungalow','camion','parking','ferraille','local','calme'].forEach(function(k){ document.getElementById('sv-'+k).toggleAttribute('hidden', k !== id); });
+    if (id === 'phone' && S.mode !== 'title') sfxRing();
+  }
+  (function makeRain(){
+    var jit = [];
+    for (var i=0;i<14;i++) jit.push([Math.random()*20, Math.random()*20]);
+    var s = '';
+    for (var r=-2;r<11;r++){
+      var par = ((r%2)+2)%2;
+      for (var c=0;c<14;c++){
+        var j = jit[c][par];
+        var x = c*30 + (par?15:0) + j, y = r*30 + j;
+        s += '<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x-3).toFixed(1)+'" y2="'+(y+12).toFixed(1)+'"/>';
+      }
+    }
+    document.querySelectorAll('.rain').forEach(function(g){ g.innerHTML = s; });
+  })();
+
+  /* ---------- HUD ---------- */
+  function hud(){
+    document.getElementById('hud-pts').textContent = S.total;
+    document.getElementById('hud-bolts').textContent = S.bolts;
+  }
+  var toastT;
+  function toast(html){
+    var t = document.getElementById('toast');
+    t.innerHTML = html; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+  var NUT_ICON = '<svg viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,1.5 17.4,5.75 17.4,14.25 10,18.5 2.6,14.25 2.6,5.75" fill="#E8B923" stroke="#9A7A12" stroke-width="1.2"/><circle cx="10" cy="10" r="3.4" fill="#16202A"/></svg>';
+
+  /* ---------- Title ---------- */
+  function showTitle(){
+    S.mode = 'title';
+    showScene('quai');
+    document.getElementById('title-ov').hidden = false;
+    stage.classList.remove('hunt');
+    panel.innerHTML =
+      '<div class="stack">'+
+        '<h2>Qui mène l\'enquête ?</h2>'+
+        '<div class="field"><label for="nom">Ton nom</label><input id="nom" maxlength="20" placeholder="Martin" autocomplete="off"></div>'+
+        '<div class="seg" role="radiogroup" aria-label="Titre">'+
+          '<input type="radio" name="titre" id="t1" value="Inspecteur" checked><label for="t1">Inspecteur</label>'+
+          '<input type="radio" name="titre" id="t2" value="Inspectrice"><label for="t2">Inspectrice</label>'+
+        '</div>'+
+        '<button class="btn" id="go" type="button">Commencer l\'enquête</button>'+
+        '<p class="sub">Ou reprendre à un chapitre</p><div class="row"><button class="btn ghost" id="go2" type="button">2 · Le bungalow</button><button class="btn ghost" id="go3" type="button">3 · Le parking</button><button class="btn ghost" id="go4" type="button">4 · Le local</button><button class="btn ghost" id="go5" type="button">5 · Le dénouement</button></div>'+
+        '<p class="small">Environ 5 minutes par chapitre. Joue au doigt ou à la souris.</p>'+
+      '</div>';
+    document.getElementById('go').onclick = function(){
+      S.name = document.getElementById('nom').value.trim();
+      S.titre = document.querySelector('input[name="titre"]:checked').value;
+      document.getElementById('title-ov').hidden = true;
+      actx();
+      S.mode = 'dialog';
+      run(PROLOGUE, startPuzzle);
+    };
+    document.getElementById('go2').onclick = function(){
+      S.name = document.getElementById('nom').value.trim();
+      S.titre = document.querySelector('input[name="titre"]:checked').value;
+      document.getElementById('title-ov').hidden = true;
+      actx();
+      S.pieces = ['Photo du quai : les 7 anomalies relevées']; S.pistes = true;
+      startChapter2();
+    };
+    document.getElementById('go3').onclick = function(){
+      S.name = document.getElementById('nom').value.trim();
+      S.titre = document.querySelector('input[name="titre"]:checked').value;
+      document.getElementById('title-ov').hidden = true;
+      actx();
+      S.pieces = ['Photo du quai : les 7 anomalies relevées', "Planning des rotations : benne 3 prévue à 11h00, raturée « 9h10 ?? »", "Registre d'accueil : Kévin, intérimaire, sans accueil sécurité ni signature", "Fiche rotation annotée : 4 étapes sur 6 bâclées ou oubliées"]; S.pistes = true;
+      startChapter3();
+    };
+    document.getElementById('go4').onclick = function(){
+      S.name = document.getElementById('nom').value.trim();
+      S.titre = document.querySelector('input[name="titre"]:checked').value;
+      document.getElementById('title-ov').hidden = true;
+      actx();
+      S.pieces = ['Photo du quai : les 7 anomalies relevées', "Planning des rotations : benne 3 prévue à 11h00, raturée « 9h10 ?? »", "Registre d'accueil : Kévin, intérimaire, sans accueil sécurité ni signature", "Fiche rotation annotée : 4 étapes sur 6 bâclées ou oubliées", "Ticket de caisse : magasin de bricolage, lundi 9h12, à 15 min du site", "Lecteur de plaques : entrée du break à 9h29", "Déclaration de Mme Brico-Laure : sur place à 9h30, a demandé de l'aide pour un plan de travail de 35 kg", "Témoignage de Jean-Mi : « un petit pas de danse », « le pied dans le trou »"]; S.pistes = true;
+      startChapter4();
+    };
+    document.getElementById('go5').onclick = function(){
+      S.name = document.getElementById('nom').value.trim();
+      S.titre = document.querySelector('input[name="titre"]:checked').value;
+      document.getElementById('title-ov').hidden = true;
+      actx();
+      S.pistes = true;
+      startChapter5();
+    };
+  }
+  function setChap(n, t){ document.getElementById('chap-n').textContent = 'Chapitre ' + n; document.getElementById('chap-t').textContent = t; }
+
+  /* ---------- Dialogue engine ---------- */
+  var seq = [], idx = 0, onEnd = null, typing = null, full = '', lineEl = null, afterType = null, hasChoices = false;
+  function run(s, end){ seq = s; idx = 0; onEnd = end; step(); }
+  function step(){
+    var st = seq[idx];
+    if (!st){ var f = onEnd; onEnd = null; if (f) f(); return; }
+    if (st.scene){ showScene(st.scene); idx++; return step(); }
+    if (st.call){ st.call(); idx++; return step(); }
+    if (st.tutorial){ showTutorial(); return; }
+    if (st.card){ showCard(st.card); return; }
+    if (st.ask){ showAsk(st); return; }
+    showLine(st);
+  }
+  function advance(){ idx++; step(); }
+
+  function showLine(st){
+    S.mode = 'dialog';
+    hasChoices = !!st.choices;
+    var head = st.who
+      ? '<div class="who"><div class="pf">'+PF[st.who]+'</div><span class="tag">'+NAMES[st.who]+'</span></div>'
+      : '';
+    panel.innerHTML = '<div class="stack'+(st.who?'':' narr')+'">'+head+'<p class="line" id="line"></p><div class="choices" id="choices"></div>'+(hasChoices?'':'<div class="next" id="next" hidden>Touche pour continuer</div>')+'</div>';
+    lineEl = document.getElementById('line');
+    full = fill(st.text);
+    stopVoice();
+    var voiced = false;
+    if (st.who === 'pipo') sfxCoo(); else voiced = playVoice(st.id);
+    SND.who = (voiced || !st.who) ? null : st.who;
+    afterType = function(){
+      if (st.choices){
+        var box = document.getElementById('choices');
+        st.choices.forEach(function(c){
+          var b = document.createElement('button');
+          b.className = 'btn choice'; b.type = 'button'; b.textContent = c;
+          b.onclick = function(e){ e.stopPropagation(); advance(); };
+          box.appendChild(b);
+        });
+        box.firstChild.focus({preventScroll:true});
+      } else {
+        var n = document.getElementById('next'); if (n) n.hidden = false;
+      }
+    };
+    typeText();
+  }
+  function typeText(){
+    clearInterval(typing); typing = null;
+    if (reduce){ lineEl.textContent = full; afterType(); return; }
+    var i = 0, tick = 0; lineEl.textContent = '';
+    typing = setInterval(function(){
+      i += 2; lineEl.textContent = full.slice(0, i);
+      if (tick++ % 3 === 0 && SND.on) blip();
+      if (i >= full.length){ clearInterval(typing); typing = null; afterType(); }
+    }, 22);
+  }
+  function finishType(){ clearInterval(typing); typing = null; lineEl.textContent = full; afterType(); }
+  function tapDialog(){
+    if (S.mode !== 'dialog') return;
+    if (typing){ finishType(); return; }
+    if (!hasChoices) advance();
+  }
+  panel.addEventListener('click', function(e){
+    if (e.target.closest('button,input,label')) return;
+    tapDialog();
+  });
+  stage.addEventListener('click', function(e){ if (S.mode === 'dialog') tapDialog(); });
+  document.addEventListener('keydown', function(e){
+    if (!document.getElementById('carnet').hidden){ if (e.key === 'Escape') closeCarnet(); return; }
+    if (S.mode !== 'dialog') return;
+    if (e.target.closest && e.target.closest('button,input')) return;
+    if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); tapDialog(); }
+  });
+
+  /* ---------- Tutorial ---------- */
+  function showTutorial(){
+    S.mode = 'tuto';
+    var eye = '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#1F2A33"/><circle cx="13" cy="13" r="6" fill="none" stroke="#F2C230" stroke-width="2.4"/><circle cx="13" cy="13" r="2" fill="#F2C230"/></svg>';
+    var bird = '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#5A6B7A"/><ellipse cx="14" cy="16" rx="7" ry="5" fill="#98A3AC"/><circle cx="10" cy="10" r="4" fill="#8D98A2"/><circle cx="9" cy="9.5" r="1" fill="#F28C28"/><path d="M6 10.5 L3.5 11.5 L6 12Z" fill="#1F2A33"/></svg>';
+    var nut = '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#1F2A33"/><polygon points="13,5 19.9,9 19.9,17 13,21 6.1,17 6.1,9" fill="#E8B923"/><circle cx="13" cy="13" r="3" fill="#1F2A33"/></svg>';
+    var warn = '<svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#1F2A33"/><path d="M13 6 L20 19 H6Z" fill="#E0703A"/><rect x="12.1" y="10.5" width="1.8" height="4.8" fill="#1F2A33"/><circle cx="13" cy="17" r="1" fill="#1F2A33"/></svg>';
+    panel.innerHTML =
+      '<div class="stack">'+
+        '<span class="eyebrow dark">Comment jouer</span>'+
+        '<h2>Ouvre l\'œil</h2>'+
+        '<ul class="rules">'+
+          '<li>'+eye+'<span><b>Touche le décor</b> pour relever ce qui cloche.</span></li>'+
+          '<li>'+bird+'<span><b>Quand Pipo roucoule, tu brûles :</b> la réponse est tout près.</span></li>'+
+          '<li>'+nut+'<span><b>Des boulons dorés</b> sont cachés dans le décor. Chacun paie un indice.</span></li>'+
+          '<li>'+warn+'<span><b>Chaque erreur</b> coûte des points Vigilance.</span></li>'+
+        '</ul>'+
+        '<button class="btn" id="tuto-ok" type="button">Compris</button>'+
+      '</div>';
+    var b = document.getElementById('tuto-ok');
+    b.focus({preventScroll:true});
+    b.onclick = advance;
+  }
+
+  /* ---------- Puzzle ---------- */
+  function startPuzzle(){
+    stopVoice();
+    S.mode = 'puzzle';
+    showScene('quai');
+    stage.classList.add('hunt');
+    renderPuzzle("Touche l'image là où quelque chose cloche.", '');
+  }
+  function renderPuzzle(msg, cls){
+    var dots = '';
+    for (var i=1;i<=7;i++) dots += '<span class="dot'+(i<=S.found.length?' on':'')+'">'+i+'</span>';
+    var hints = '';
+    for (var h=0;h<S.hints;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS[h])+'</span></div>';
+    var hintLabel = S.hints >= 3 ? 'Plus d\'indice disponible' : 'Indice ' + (S.hints+1) + ' · 1 boulon';
+    panel.innerHTML =
+      '<div class="stack">'+
+        '<div class="puz-head"><div><span class="eyebrow dark">Énigme n°1</span><h2>Le quai qui parle</h2></div><span class="worth" id="worth">'+S.value+' pts en jeu</span></div>'+
+        '<p style="margin:0">Hortense a repéré <b>7 anomalies</b> sur ce quai. Retrouve-les toutes en touchant l\'image.</p>'+
+        '<div class="dots" aria-label="'+S.found.length+' anomalies sur 7">'+dots+'</div>'+
+        '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
+        (hints ? '<div class="hints">'+hints+'</div>' : '')+
+        '<button class="btn ghost" id="btn-hint" type="button"'+(S.hints>=3?' disabled':'')+'>'+hintLabel+'</button>'+
+      '</div>';
+    document.getElementById('btn-hint').onclick = useHint;
+  }
+  function useHint(){
+    if (S.hints >= 3) return;
+    if (S.bolts < 1){ renderPuzzle("Il te faut un boulon doré. Trois sont cachés dans le décor : regarde bien les recoins.", 'coo'); return; }
+    S.bolts--; S.hints++; hud();
+    renderPuzzle("Hortense glisse un indice dans ton carnet.", '');
+  }
+
+  function toSvg(e){
+    var pt = svgQ.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    return pt.matrixTransform(svgQ.getScreenCTM().inverse());
+  }
+  function inR(p, r){ return p.x >= r[0] && p.x <= r[0]+r[2] && p.y >= r[1] && p.y <= r[1]+r[3]; }
+  function distR(p, r){
+    var dx = Math.max(r[0]-p.x, 0, p.x-(r[0]+r[2]));
+    var dy = Math.max(r[1]-p.y, 0, p.y-(r[1]+r[3]));
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  function el(tag, attrs){ var n = document.createElementNS(NS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); return n; }
+
+  svgQ.addEventListener('click', function(e){
+    if (S.mode !== 'puzzle') return;
+    var p = toSvg(e);
+    for (var b=0;b<BOLTS.length;b++){
+      var bo = BOLTS[b];
+      if (S.boltsFound.indexOf(bo.id) < 0 && inR(p, bo.r)){ foundBolt(bo); return; }
+    }
+    for (var a=0;a<ANOM.length;a++){
+      if (S.found.indexOf(ANOM[a].id) >= 0 && inR(p, ANOM[a].r)) return;
+    }
+    for (var i=0;i<ANOM.length;i++){
+      var an = ANOM[i];
+      if (S.found.indexOf(an.id) < 0 && inR(p, an.r)){ foundAnom(an); return; }
+    }
+    var near = ANOM.some(function(an){ return S.found.indexOf(an.id) < 0 && distR(p, an.r) < 70; });
+    if (near){ coo(); return; }
+    miss(p);
+  });
+
+  function foundBolt(bo, layer){
+    layer = layer || fx;
+    S.boltsFound.push(bo.id); S.bolts++; hud(); sfxBolt();
+    var u = document.getElementById('bolt-'+bo.id);
+    var cx = +u.getAttribute('x'), cy = +u.getAttribute('y');
+    u.style.display = 'none';
+    var g = el('g', {'class':'pop'});
+    g.appendChild(el('circle', {cx:cx, cy:cy, r:27, fill:'none', stroke:'#F2C230', 'stroke-width':6}));
+    g.appendChild(el('circle', {cx:cx, cy:cy, r:10, fill:'#F2C230'}));
+    layer.appendChild(g);
+    setTimeout(function(){ g.classList.add('fade'); }, 250);
+    setTimeout(function(){ g.remove(); }, 1300);
+    toast(NUT_ICON + '<span>Boulon doré trouvé ! Il te paiera un indice.</span>');
+  }
+
+  function foundAnom(an){
+    S.found.push(an.id);
+    if (S.found.length >= 7) sfxSuccess(); else sfxFound();
+    var r = an.r, cx = r[0]+r[2]/2, cy = r[1]+r[3]/2;
+    var g = el('g', {'class':'pop'});
+    g.appendChild(el('ellipse', {cx:cx, cy:cy, rx:r[2]/2+2, ry:r[3]/2+3, fill:'none', stroke:'#1F2A33', 'stroke-width':15, opacity:.55}));
+    g.appendChild(el('ellipse', {cx:cx, cy:cy, rx:r[2]/2+2, ry:r[3]/2+3, fill:'none', stroke:'#F2C230', 'stroke-width':7}));
+    var bx = r[0]+12, by = r[1]+8;
+    g.appendChild(el('circle', {cx:bx, cy:by, r:20, fill:'#F2C230', stroke:'#1F2A33', 'stroke-width':4}));
+    var t = el('text', {x:bx, y:by+9, 'text-anchor':'middle', 'font-family':'Baloo 2, sans-serif', 'font-weight':800, 'font-size':27, fill:'#1F2A33'});
+    t.textContent = S.found.length; g.appendChild(t);
+    marks.appendChild(g);
+    if (S.found.length >= 7){
+      S.mode = 'wait';
+      stage.classList.remove('hunt');
+      renderPuzzle(an.t + ' Et de sept !', 'good');
+      setTimeout(function(){
+        S.total += S.value; S.score1 = S.value;
+        S.pieces = ['Photo du quai : les 7 anomalies relevées'];
+        S.pistes = true;
+        hud();
+        run(SUCCESS, showEnd);
+      }, 1400);
+    } else {
+      renderPuzzle(an.t, 'good');
+    }
+  }
+
+  var cooT;
+  function coo(){
+    sfxCoo();
+    var pipo = document.getElementById('pipo'), bubble = document.getElementById('coo');
+    bubble.setAttribute('opacity', 1);
+    clearTimeout(cooT); cooT = setTimeout(function(){ bubble.setAttribute('opacity', 0); }, 1400);
+    renderPuzzle("Pipo roucoule : tu brûles ! C'est tout près de là où tu as touché.", 'coo');
+  }
+
+  function miss(p){
+    sfxMiss();
+    var lost = S.value > 15;
+    if (lost) S.value = Math.max(15, S.value - 3);
+    var g = el('g', {'class':'fade'});
+    g.appendChild(el('path', {d:'M'+(p.x-15)+' '+(p.y-15)+' L'+(p.x+15)+' '+(p.y+15)+' M'+(p.x+15)+' '+(p.y-15)+' L'+(p.x-15)+' '+(p.y+15), stroke:'#E0703A', 'stroke-width':9, 'stroke-linecap':'round'}));
+    fx.appendChild(g);
+    setTimeout(function(){ g.remove(); }, 950);
+    renderPuzzle(lost ? "Rien d'anormal ici. −3 points Vigilance." : "Rien d'anormal ici.", 'bad');
+  }
+
+  /* ---------- End ---------- */
+  function showEnd(){
+    S.mode = 'end';
+    panel.innerHTML =
+      '<div class="stack end">'+
+        '<span class="eyebrow dark">Fin du chapitre 1</span>'+
+        '<h2>Le quai a parlé</h2>'+
+        '<dl class="score">'+
+          '<div><dt>Vigilance</dt><dd>'+S.value+'<small style="font-size:13px"> / 30</small></dd></div>'+
+          '<div><dt>Indices</dt><dd>'+S.hints+'</dd></div>'+
+          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
+        '</dl>'+
+        '<p>Nouvelles pistes dans ton carnet : Tony Benne, Mme Brico-Laure, Kévin et Jean-Mi Récup.</p>'+
+        '<div class="row"><button class="btn" id="next-ch" type="button">Chapitre 2 · Le bungalow</button><button class="btn ghost" id="end-carnet" type="button">Ouvrir le carnet</button></div>'+
+      '</div>';
+    document.getElementById('next-ch').onclick = startChapter2;
+    document.getElementById('end-carnet').onclick = openCarnet;
+    document.getElementById('replay').onclick = replay;
+  }
+  function replay(){
+    reset(); hud(); stopVoice(); rain(0);
+    marks.innerHTML = ''; fx.innerHTML = '';
+    document.getElementById('marks3').innerHTML = ''; document.getElementById('fx3').innerHTML = '';
+    BOLTS.concat(BOLTS2, BOLTS3).forEach(function(b){ document.getElementById('bolt-'+b.id).style.display = ''; });
+    document.getElementById('marks2').innerHTML = ''; document.getElementById('fx2').innerHTML = '';
+    document.getElementById('planning-ink').setAttribute('opacity', 0);
+    setChap(1, 'Le quai');
+    showTitle();
+  }
+
+
+  /* =========================================================
+     CHAPITRE 2 : le bungalow d'accueil et le camion
+     ========================================================= */
+  var BOLTS2 = [ {id:'b1', r:[918,368,60,60]}, {id:'b2', r:[1032,738,60,60]} ];
+  var svgB = document.getElementById('sv-bungalow');
+  var marks2 = document.getElementById('marks2'), fx2 = document.getElementById('fx2');
+
+  var REGISTRE = '<div class="reg"><div class="reg-h">Registre d\'accueil des nouveaux arrivants</div><table>'+
+    '<tr><th>Date</th><th>Nom</th><th>Fonction</th><th>Accueil sécurité</th><th>Signature</th></tr>'+
+    '<tr><td>08/09</td><td>Samir B.</td><td>Agent</td><td>Fait par Nadine</td><td class="sig">S. B.</td></tr>'+
+    '<tr><td>15/09</td><td>Lucie M.</td><td>Stagiaire</td><td>Fait par Gégé</td><td class="sig">L. Martin</td></tr>'+
+    '<tr class="hl"><td>Lundi</td><td>Kévin D.</td><td>Intérimaire</td><td class="empty"></td><td class="empty"></td></tr>'+
+    '</table></div>';
+
+  function addPiece(p){ if (S.pieces.indexOf(p) < 0) S.pieces.push(p); toast('<span>Nouvelle pièce dans le carnet : '+esc(p.split(' :')[0])+'</span>'); }
+
+  function spotsDef(){ return [
+    {id:'planning', label:'Le planning des rotations', req:true, r:[40,30,455,465], seq:[
+      {call:function(){ document.getElementById('planning-ink').setAttribute('opacity', 1); }},
+      {who:null, text:"Sur le planning, « Benne 3 · 11h00 » est barré. À côté, quelqu'un a griffonné en rouge : « 9h10 ?? »."},
+      {id:'s2_04', who:'hortense', text:"9h10, avec deux points d'interrogation. Quelqu'un a été surpris."},
+      {id:'s2_05', who:'nadine', text:"Tony est arrivé deux heures en avance. Personne ne m'a appelée."},
+      {call:function(){ addPiece("Planning des rotations : benne 3 prévue à 11h00, raturée « 9h10 ?? »"); }}
+    ]},
+    {id:'registre', label:"Le registre d'accueil", req:true, r:[425,600,370,175], seq:[
+      {card:REGISTRE},
+      {id:'s2_06', who:'hortense', text:"« Kévin, intérimaire. Accueil sécurité : … » La case est vide, sans signature."},
+      {id:'s2_07', who:'nadine', text:"J'allais le faire. Et puis le téléphone a sonné. Et il a resonné."},
+      {call:function(){ addPiece("Registre d'accueil : Kévin, intérimaire, sans accueil sécurité ni signature"); }}
+    ]},
+    {id:'tel', r:[215,530,265,185], seq:[
+      {id:'s2_08', who:'nadine', text:"Ne touchez pas au téléphone, par pitié. Il va encore sonner."}
+    ]},
+    {id:'cafe', r:[800,470,175,250], seq:[
+      {id:'s2_09', who:'hortense', text:"La machine à café fume. C'est bien le seul équipement ici qui tourne à plein régime."}
+    ]},
+    {id:'epi', r:[505,160,240,285], seq:[
+      {id:'s2_10', who:'hortense', text:"Des casques et des gilets en réserve. Les équipements sont là. Reste à bien les porter."}
+    ]}
+  ]; }
+  var SPOTS2 = spotsDef();
+
+  function c2Intro(){ return [
+    {scene:'bungalow'},
+    {who:null, text:"Le bungalow d'accueil. Un bureau encombré, un planning au mur, une machine à café qui fume. Nadine raccroche enfin."},
+    {id:'s2_01', who:'nadine', text:"Désolée, c'était la mairie, puis le prestataire, puis encore la mairie. Gégé ? Il va bien ? Ah oui, il râle, donc il va bien."},
+    {id:'s2_02', who:'hortense', text:"Pouvons-nous voir le planning des rotations ?"},
+    {id:'s2_03', who:'nadine', text:"Là, au mur. La benne 3 était prévue à 11h, pendant le creux de fréquentation."}
+  ]; }
+  function c2Camion(){ return [
+    {scene:'camion'},
+    {who:null, text:"Sur le parking, la cabine du camion ampliroll. Tony mange un sandwich, la radio en sourdine."},
+    {id:'s3_01', who:'tony', text:"Moi ? J'ai fait mon échange de benne comme d'habitude. Dix minutes, propre et net."},
+    {id:'s3_02', who:'hortense', text:"À 9h10 au lieu de 11h."},
+    {id:'s3_03', who:'tony', text:"Le dispatch a avancé ma tournée. J'allais pas attendre deux heures en regardant la pluie, si ?"},
+    {to:'Tony', ask:[
+      {q:"Qui a retiré la barrière du quai ?", lines:[{id:'s3_04', who:'tony', text:"Gégé, comme d'hab. Moi je touche pas au quai, je reste dans mon camion."}]},
+      {q:"Vous avez vérifié la position de la benne ?", lines:[{id:'s3_05', who:'tony', text:"Elle était… à peu près là. Avec la pluie, on voit rien dans les rétros. Pourquoi, elle était pas bien ?"}]}
+    ]},
+    {id:'s3_06', who:'hortense', text:"« À peu près là. » Trente centimètres de vide, c'est la taille d'une cheville."}
+  ]; }
+  function c2Success(){ return [
+    {id:'s3_07', who:'hortense', text:"Ce matin, il manquait l'étape B, la moitié de l'étape D, l'étape A était approximative et l'étape C a disparu. C'est beaucoup pour une seule rotation."},
+    {id:'s3_08', who:'tony', text:"Vu comme ça… la prochaine fois, j'appelle avant."},
+    {call:function(){ addPiece("Fiche rotation annotée : 4 étapes sur 6 bâclées ou oubliées"); }}
+  ]; }
+
+  function startChapter2(){
+    stopVoice();
+    S.chapter = 2; S.spots = []; S.v2 = 40; S.h2 = 0; S.placed = [];
+    SPOTS2 = spotsDef();
+    marks2.innerHTML = ''; fx2.innerHTML = '';
+    document.getElementById('planning-ink').setAttribute('opacity', 0);
+    BOLTS2.forEach(function(b){ document.getElementById('bolt-'+b.id).style.display = ''; S.boltsFound = S.boltsFound.filter(function(x){ return x !== b.id; }); });
+    setChap(2, 'Le bungalow');
+    S.mode = 'dialog';
+    EXP = {scene:'bungalow', svg:svgB, marks:marks2, fx:fx2, spots:SPOTS2, bolts:BOLTS2,
+           eyebrow:'Fouille', title:"Le bungalow d'accueil", intro:"Hortense veut voir deux documents. Trouve-les dans la pièce.",
+           start:"Touche le décor pour fouiller le bungalow.", left:"Bien vu. Il reste un document à trouver.",
+           done:function(){ run(c2Camion(), startOrder); }};
+    run(c2Intro(), startExplore);
+  }
+  var EXP = null;
+
+  /* --- Carte (pièce à conviction affichée dans le panneau) --- */
+  function showCard(html){
+    S.mode = 'dialog'; hasChoices = false; clearInterval(typing); typing = null;
+    panel.innerHTML = '<div class="stack"><span class="eyebrow dark">Pièce à conviction</span>'+html+'<div class="next">Touche pour continuer</div></div>';
+  }
+
+  /* --- Questions au choix --- */
+  function showAsk(st){
+    var left = st.ask.filter(function(a){ return !a.done; });
+    if (!left.length){ advance(); return; }
+    S.mode = 'ask'; stopVoice();
+    panel.innerHTML = '<div class="stack"><span class="eyebrow dark">Tes questions</span><p class="line" style="min-height:0">Que demandes-tu à '+esc(st.to || 'ton témoin')+' ?</p><div class="choices" id="asks"></div></div>';
+    var box = document.getElementById('asks');
+    left.forEach(function(a){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn choice'; b.textContent = '« ' + a.q + ' »';
+      b.onclick = function(e){ e.stopPropagation(); a.done = true; seq.splice.apply(seq, [idx+1, 0].concat(a.lines, [st])); advance(); };
+      box.appendChild(b);
+    });
+    box.firstChild.focus({preventScroll:true});
+  }
+
+  /* --- Exploration du bungalow --- */
+  function startExplore(msg){
+    S.mode = 'explore'; stopVoice();
+    showScene(EXP.scene);
+    stage.classList.add('hunt');
+    renderExplore(typeof msg === 'string' ? msg : EXP.start, '');
+  }
+  function renderExplore(msg, cls){
+    var req = EXP.spots.filter(function(s){ return s.req; });
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">'+EXP.eyebrow+'</span><h2>'+esc(EXP.title)+'</h2></div></div>'+
+      '<p style="margin:0">'+esc(EXP.intro)+'</p>'+
+      '<ul class="checks">'+req.map(function(s){ var ok = S.spots.indexOf(s.id) >= 0; return '<li class="'+(ok?'ok':'')+'"><span class="box">'+(ok?'✓':'')+'</span><span>'+s.label+'</span></li>'; }).join('')+'</ul>'+
+      '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
+    '</div>';
+  }
+  function toSvgX(sv, e){ var pt = sv.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(sv.getScreenCTM().inverse()); }
+  function markSpot(sp){
+    var r = sp.r, cx = r[0]+r[2]/2, cy = r[1]+r[3]/2;
+    var g = el('g', {'class':'pop'});
+    g.appendChild(el('ellipse', {cx:cx, cy:cy, rx:r[2]/2+2, ry:r[3]/2+3, fill:'none', stroke:'#1F2A33', 'stroke-width':15, opacity:.5}));
+    g.appendChild(el('ellipse', {cx:cx, cy:cy, rx:r[2]/2+2, ry:r[3]/2+3, fill:'none', stroke: sp.req ? '#F2C230' : '#DDE3E6', 'stroke-width':7}));
+    EXP.marks.appendChild(g);
+  }
+  function exploreClick(e){
+    if (S.mode !== 'explore' || !EXP || e.currentTarget !== EXP.svg) return;
+    var p = toSvgX(EXP.svg, e);
+    for (var b=0;b<EXP.bolts.length;b++){
+      var bo = EXP.bolts[b];
+      if (S.boltsFound.indexOf(bo.id) < 0 && inR(p, bo.r)){ foundBolt(bo, EXP.fx); renderExplore("Un boulon doré ! Il servira pour un indice.", 'good'); return; }
+    }
+    for (var i=0;i<EXP.spots.length;i++){
+      var sp = EXP.spots[i];
+      if (inR(p, sp.r)){
+        if (S.spots.indexOf(sp.id) >= 0){ renderExplore("Déjà examiné.", ''); return; }
+        S.spots.push(sp.id); markSpot(sp);
+        if (sp.req) sfxFound();
+        S.mode = 'dialog';
+        run(sp.seq.slice(), afterSpot);
+        return;
+      }
+    }
+    var g = el('g', {'class':'fade'});
+    g.appendChild(el('path', {d:'M'+(p.x-15)+' '+(p.y-15)+' L'+(p.x+15)+' '+(p.y+15)+' M'+(p.x+15)+' '+(p.y-15)+' L'+(p.x-15)+' '+(p.y+15), stroke:'#9FB0BC', 'stroke-width':8, 'stroke-linecap':'round'}));
+    EXP.fx.appendChild(g); setTimeout(function(){ g.remove(); }, 950);
+    renderExplore("Rien d'intéressant ici.", '');
+  }
+  svgB.addEventListener('click', exploreClick);
+  function afterSpot(){
+    var done = EXP.spots.filter(function(s){ return s.req && S.spots.indexOf(s.id) < 0; }).length === 0;
+    if (done){
+      stage.classList.remove('hunt');
+      S.mode = 'dialog';
+      EXP.done();
+    } else {
+      startExplore(EXP.left);
+    }
+  }
+
+  /* --- Énigme n°2 : la rotation en désordre --- */
+  var CARDS = {
+    A:"Positionner la nouvelle benne contre le quai et vérifier qu'il n'y a pas d'écart",
+    B:"Prévenir l'agent de site et vérifier que le créneau est le bon",
+    C:"Remettre la barrière, retirer le balisage et rouvrir le quai",
+    D:"Fermer l'accès au quai aux usagers et baliser la zone",
+    E:"Retirer la benne pleine",
+    F:"Afficher le panneau « Rotation en cours »"
+  };
+  var ORDER_SOL = ['B','D','F','E','A','C'];
+  var HINTS2 = [
+    "Tout commence avant même que le camion ne manœuvre : par un coup de fil.",
+    "On protège les gens avant de retirer quoi que ce soit.",
+    "La dernière étape, c'est celle que personne n'a faite ce matin."
+  ];
+  function startOrder(){
+    stopVoice();
+    S.mode = 'order';
+    stage.classList.remove('hunt');
+    renderOrder("Touche les étapes dans l'ordre. Touche une étape placée pour la retirer.", '', false);
+  }
+  function renderOrder(msg, cls, showOk){
+    var slots = '';
+    for (var i=0;i<6;i++){
+      var k = S.placed[i];
+      slots += k
+        ? '<li><button type="button" class="slot filled'+(showOk && k === ORDER_SOL[i] ? ' ok' : '')+'" data-i="'+i+'"><b>'+(i+1)+'.</b><span>'+esc(CARDS[k])+'</span></button></li>'
+        : '<li><button type="button" class="slot" disabled><b>'+(i+1)+'.</b><span>…</span></button></li>';
+    }
+    var pool = Object.keys(CARDS).filter(function(k){ return S.placed.indexOf(k) < 0; })
+      .map(function(k){ return '<button type="button" class="card" data-k="'+k+'"><b>'+k+'</b><span>'+esc(CARDS[k])+'</span></button>'; }).join('');
+    var hints = '';
+    for (var h=0;h<S.h2;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS2[h])+'</span></div>';
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme n°2</span><h2>La rotation en désordre</h2></div><span class="worth">'+S.v2+' pts en jeu</span></div>'+
+      '<p style="margin:0">Remets dans l\'ordre les 6 étapes d\'une rotation de benne en sécurité.</p>'+
+      '<ol class="slots">'+slots+'</ol>'+
+      (pool ? '<p class="sub">Étapes à placer</p><div class="pool">'+pool+'</div>' : '')+
+      '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
+      (hints ? '<div class="hints">'+hints+'</div>' : '')+
+      '<div class="row"><button class="btn" id="btn-check" type="button"'+(S.placed.length<6?' disabled':'')+'>Valider</button>'+
+      '<button class="btn ghost" id="btn-hint2" type="button"'+(S.h2>=3?' disabled':'')+'>'+(S.h2>=3?'Plus d\'indice':'Indice '+(S.h2+1)+' · 1 boulon')+'</button></div>'+
+    '</div>';
+    panel.querySelectorAll('.card').forEach(function(b){ b.onclick = function(){ S.placed.push(b.getAttribute('data-k')); sfxFound(); renderOrder(S.placed.length<6 ? "Étape placée." : "Toutes les étapes sont placées. Valide quand tu es sûr de toi.", '', false); }; });
+    panel.querySelectorAll('.slot.filled').forEach(function(b){ b.onclick = function(){ S.placed.splice(+b.getAttribute('data-i'), 1); renderOrder("Étape retirée.", '', false); }; });
+    document.getElementById('btn-check').onclick = checkOrder;
+    document.getElementById('btn-hint2').onclick = function(){
+      if (S.h2 >= 3) return;
+      if (S.bolts < 1){ renderOrder("Il te faut un boulon doré pour acheter un indice.", 'coo', false); return; }
+      S.bolts--; S.h2++; hud(); renderOrder("Hortense glisse un indice dans ton carnet.", '', false);
+    };
+  }
+  function checkOrder(){
+    var ok = 0; for (var i=0;i<6;i++) if (S.placed[i] === ORDER_SOL[i]) ok++;
+    if (ok === 6){
+      sfxSuccess(); S.mode = 'wait';
+      renderOrder("Parfait : B, D, F, E, A, C. Une rotation dans les règles.", 'good', true);
+      setTimeout(function(){ S.total += S.v2; S.score2 = S.v2; hud(); run(c2Success(), showEnd2); }, 1400);
+      return;
+    }
+    sfxMiss();
+    var lost = S.v2 > 20; if (lost) S.v2 = Math.max(20, S.v2 - 4);
+    renderOrder(ok + (ok > 1 ? " étapes sur 6 sont" : " étape sur 6 est") + " à la bonne place (en vert)." + (lost ? " −4 points Vigilance." : ""), 'bad', true);
+  }
+  function showEnd2(){
+    S.mode = 'end'; stopVoice();
+    panel.innerHTML =
+      '<div class="stack end">'+
+        '<span class="eyebrow dark">Fin du chapitre 2</span>'+
+        '<h2>Une rotation bâclée</h2>'+
+        '<dl class="score">'+
+          '<div><dt>Vigilance</dt><dd>'+S.v2+'<small style="font-size:13px"> / 40</small></dd></div>'+
+          '<div><dt>Total</dt><dd>'+S.total+'</dd></div>'+
+          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
+        '</dl>'+
+        '<p>Trois nouvelles pièces : le planning raturé, le registre sans signature et la fiche rotation annotée.</p>'+
+        '<div class="row"><button class="btn" id="next-ch3" type="button">Chapitre 3 · Le parking</button><button class="btn ghost" id="end-carnet2" type="button">Ouvrir le carnet</button></div>'+
+      '</div>';
+    document.getElementById('next-ch3').onclick = startChapter3;
+    document.getElementById('end-carnet2').onclick = openCarnet;
+  }
+
+  /* =========================================================
+     CHAPITRE 3 : le parking (Mme Brico-Laure) et la benne ferraille (Jean-Mi)
+     ========================================================= */
+  var BOLTS3 = [ {id:'p1', r:[102,744,60,60]}, {id:'p2', r:[1118,536,60,60]} ];
+  var svgP = document.getElementById('sv-parking');
+  var marks3 = document.getElementById('marks3'), fx3 = document.getElementById('fx3');
+  svgP.addEventListener('click', exploreClick);
+
+  var TICKET = '<div class="ticket"><div class="t-shop">LE COMPTOIR DU BRICOLEUR</div><div class="t-sub">Zone artisanale · à 15 min de la déchetterie</div>'+
+    '<div class="t-line"><span>Sacs à gravats x10</span><span>12,90</span></div>'+
+    '<div class="t-line"><span>Ruban adhésif toilé</span><span>4,50</span></div>'+
+    '<div class="t-line"><span>Gants de manutention</span><span>6,90</span></div>'+
+    '<div class="t-tot"><span>TOTAL</span><span>24,30 €</span></div>'+
+    '<div class="t-date">LUNDI · 09:12 · CAISSE 3</div><div class="t-thx">Merci de votre visite !</div></div>';
+
+  function spots3(){ return [
+    {id:'ticket', label:"Un indice sur l'heure d'arrivée", req:true, r:[795,635,130,105], seq:[
+      {card:TICKET},
+      {id:'s4_04', who:'hortense', text:"{Insp}, voilà un ticket qui a beaucoup à dire."},
+      {who:null, text:"Nadine transmet une dernière info : le lecteur de plaques de l'entrée a enregistré le break à 9h29."},
+      {call:function(){ addPiece("Ticket de caisse : magasin de bricolage, lundi 9h12, à 15 min du site"); addPiece("Lecteur de plaques : entrée du break à 9h29"); }}
+    ]},
+    {id:'coffre', r:[420,520,150,150], seq:[
+      {id:'s4_08', who:'hortense', text:"Un pied de meuble oublié dans le coffre. On a déchargé vite, ce matin."}
+    ]},
+    {id:'barriere', r:[868,182,245,125], seq:[
+      {id:'s4_09', who:'hortense', text:"Tiens, la barrière du quai. Toujours posée contre le grillage."}
+    ]}
+  ]; }
+
+  function c3Intro(){ return [
+    {scene:'parking'},
+    {who:null, text:"Le parking, sous la pluie. Un break gris attend, coffre grand ouvert. Mme Brico-Laure ajuste ses gants."},
+    {id:'s4_01', who:'brico', text:"Ah non, moi je n'ai rien vu ! Je suis arrivée vers 9h45, tout était déjà fini. Le pauvre monsieur était par terre."},
+    {id:'s4_02', who:'hortense', text:"Vous étiez pressée ce matin ?"},
+    {id:'s4_03', who:'brico', text:"Moi ? Jamais. Enfin, j'avais la cuisiniste à 10h30, mais c'est sans rapport."}
+  ]; }
+  function c3After(){ return [
+    {id:'s4_05', who:'hortense', text:"Madame, vous êtes arrivée à 9h29. À 9h40, vous étiez là."},
+    {id:'s4_06', who:'brico', text:"Bon… d'accord. J'ai posé mes cartons par terre, la benne était trop loin, je n'allais pas me pencher au-dessus du vide ! Et puis j'ai demandé au monsieur de m'aider pour le plan de travail. Il pèse 35 kilos, j'ai 67 ans."},
+    {id:'s4_07', who:'hortense', text:"Merci. Vous voyez, la vérité est plus légère qu'un plan de travail."},
+    {call:function(){ addPiece("Déclaration de Mme Brico-Laure : sur place à 9h30, a demandé de l'aide pour un plan de travail de 35 kg"); }},
+    {call:function(){ setChap(3, 'La ferraille'); }},
+    {scene:'ferraille'},
+    {who:null, text:"Au fond du site, la benne ferraille. Jean-Mi en sort avec un vélo sans roues."},
+    {id:'s5_01', who:'jeanmi', text:"Salut chef ! Regardez-moi cette merveille. Une chambre à air, deux roues, et ça roule encore dix ans."},
+    {id:'s5_02', who:'hortense', text:"Vous étiez dans cette benne ce matin, à 9h40 ?"},
+    {id:'s5_03', who:'jeanmi', text:"Dans la benne, sur la benne, autour de la benne… disons dans la zone. J'ai vu Gégé reculer avec un grand plateau. Il a fait un petit pas de danse et paf, le pied dans le trou."},
+    {to:'Jean-Mi', ask:[
+      {q:"Vous l'avez poussé ?", lines:[{id:'s5_04', who:'jeanmi', text:"Moi ? J'étais à vingt mètres, perché sur un frigo. Faudrait des sacrés bras."}]},
+      {q:"Vous savez qu'il est interdit de monter dans les bennes ?", lines:[{id:'s5_05', who:'jeanmi', text:"… Je savais pas que la police des bennes existait."}]}
+    ]},
+    {id:'s5_06', who:'hortense', text:"Il n'est pas la cause de l'accident. Mais notez-le quand même : c'est le prochain."},
+    {call:function(){ addPiece("Témoignage de Jean-Mi : « un petit pas de danse », « le pied dans le trou »"); }}
+  ]; }
+
+  function startChapter3(){
+    stopVoice();
+    S.chapter = 3; S.spots = []; S.v3 = 40; S.h3 = 0; S.t3 = 45;
+    marks3.innerHTML = ''; fx3.innerHTML = '';
+    BOLTS3.forEach(function(b){ document.getElementById('bolt-'+b.id).style.display = ''; S.boltsFound = S.boltsFound.filter(function(x){ return x !== b.id; }); });
+    setChap(3, 'Le parking');
+    S.mode = 'dialog';
+    EXP = {scene:'parking', svg:svgP, marks:marks3, fx:fx3, spots:spots3(), bolts:BOLTS3,
+           eyebrow:'Fouille', title:'Le break de Mme Brico-Laure', intro:"Sa version : arrivée à 9h45, après l'accident. Trouve de quoi la vérifier.",
+           start:"Touche le décor pour fouiller autour de la voiture.", left:"Continue de chercher.",
+           done:startTime};
+    run(c3Intro(), startExplore);
+  }
+
+  /* --- Énigme n°3 : l'heure ne ment jamais --- */
+  var HINTS3 = [
+    "Additionne le trajet à l'heure du ticket. Est-ce cohérent avec l'enregistrement de l'entrée ?",
+    "9h12 + 15 minutes = 9h27. Le lecteur de plaques dit 9h29 : le ticket et l'entrée concordent.",
+    "9h29 + 1 minute. Compare avec l'heure de l'accident, 9h40."
+  ];
+  function hhmm(m){ return '9h' + (m < 10 ? '0' : '') + m; }
+  function startTime(){
+    stopVoice(); S.mode = 'time'; stage.classList.remove('hunt');
+    renderTime("Règle l'horloge puis valide.", '');
+  }
+  function renderTime(msg, cls){
+    var hints = '';
+    for (var h=0;h<S.h3;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS3[h])+'</span></div>';
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme n°3</span><h2>L\'heure ne ment jamais</h2></div><span class="worth">'+S.v3+' pts en jeu</span></div>'+
+      '<ul class="facts">'+
+        '<li><span>Ticket de caisse du magasin</span><b>9h12</b></li>'+
+        '<li><span>Trajet magasin → déchetterie</span><b>15 min</b></li>'+
+        '<li><span>Lecteur de plaques de l\'entrée</span><b>9h29</b></li>'+
+        '<li><span>Se garer et commencer à décharger</span><b>≈ 1 min</b></li>'+
+        '<li><span>Accident de Gégé</span><b>9h40</b></li>'+
+      '</ul>'+
+      '<p style="margin:0"><b>À quelle heure Mme Brico-Laure a-t-elle commencé à décharger ?</b></p>'+
+      '<div class="clock"><button class="round" id="t-minus" type="button" aria-label="Une minute de moins">−</button><output id="t-out" aria-live="polite">'+hhmm(S.t3)+'</output><button class="round" id="t-plus" type="button" aria-label="Une minute de plus">+</button></div>'+
+      '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
+      (hints ? '<div class="hints">'+hints+'</div>' : '')+
+      '<div class="row"><button class="btn" id="t-ok" type="button">Valider</button>'+
+      '<button class="btn ghost" id="btn-hint3" type="button"'+(S.h3>=3?' disabled':'')+'>'+(S.h3>=3?'Plus d\'indice':'Indice '+(S.h3+1)+' · 1 boulon')+'</button></div>'+
+    '</div>';
+    var out = document.getElementById('t-out');
+    document.getElementById('t-minus').onclick = function(){ if (S.t3 > 0){ S.t3--; out.textContent = hhmm(S.t3); tone(520, now(), 0.04, 'square', 0.02); } };
+    document.getElementById('t-plus').onclick = function(){ if (S.t3 < 59){ S.t3++; out.textContent = hhmm(S.t3); tone(620, now(), 0.04, 'square', 0.02); } };
+    document.getElementById('t-ok').onclick = checkTime;
+    document.getElementById('btn-hint3').onclick = function(){
+      if (S.h3 >= 3) return;
+      if (S.bolts < 1){ renderTime("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
+      S.bolts--; S.h3++; hud(); renderTime("Hortense glisse un indice dans ton carnet.", '');
+    };
+  }
+  function checkTime(){
+    if (S.t3 === 30){
+      sfxSuccess(); S.mode = 'wait';
+      renderTime("9h30 : elle déchargeait dix minutes avant l'accident. Elle était là.", 'good');
+      setTimeout(function(){ S.total += S.v3; S.score3 = S.v3; hud(); S.mode = 'dialog'; run(c3After(), showEnd3); }, 1400);
+      return;
+    }
+    sfxMiss();
+    var lost = S.v3 > 20; if (lost) S.v3 = Math.max(20, S.v3 - 4);
+    var why = S.t3 === 45 ? "9h45, c'est sa version. Les preuves disent autre chose."
+      : S.t3 === 27 ? "9h27, c'est l'arrivée théorique. Le lecteur de plaques est plus précis."
+      : S.t3 === 29 ? "9h29, c'est l'entrée sur le site. Il faut encore se garer."
+      : S.t3 === 12 ? "9h12, elle était encore en caisse au magasin."
+      : S.t3 < 30 ? "Trop tôt : à cette heure-là, elle n'était pas encore là."
+      : "Trop tard : les preuves la placent sur le site plus tôt.";
+    renderTime(why + (lost ? " −4 points Vigilance." : ""), 'bad');
+  }
+  function showEnd3(){
+    S.mode = 'end'; stopVoice();
+    panel.innerHTML =
+      '<div class="stack end">'+
+        '<span class="eyebrow dark">Fin du chapitre 3</span>'+
+        '<h2>Le témoin perché</h2>'+
+        '<dl class="score">'+
+          '<div><dt>Vigilance</dt><dd>'+S.v3+'<small style="font-size:13px"> / 40</small></dd></div>'+
+          '<div><dt>Total</dt><dd>'+S.total+'</dd></div>'+
+          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
+        '</dl>'+
+        '<p>Mme Brico-Laure était bien là à 9h30, et Jean-Mi a tout vu depuis son frigo. Reste à savoir qui a étalé les cartons.</p>'+
+        '<div class="row"><button class="btn" id="next-ch4" type="button">Chapitre 4 · Le local</button><button class="btn ghost" id="end-carnet3" type="button">Ouvrir le carnet</button></div>'+
+      '</div>';
+    document.getElementById('next-ch4').onclick = startChapter4;
+    document.getElementById('end-carnet3').onclick = openCarnet;
+  }
+
+  /* =========================================================
+     CHAPITRE 4 : le local (Kévin) et le retour auprès de Gégé
+     ========================================================= */
+  var SAYS = [
+    {who:'kevin', t:"Ce n'est pas moi qui ai étalé les cartons."},
+    {who:'jeanmi', t:"C'est Mme Brico-Laure qui les a étalés."},
+    {who:'brico', t:"Jean-Mi ment."}
+  ];
+  var HINTS4 = [
+    "Teste chaque suspect un par un et compte les phrases vraies.",
+    "Si c'est Mme Brico-Laure, alors Kévin et Jean-Mi disent vrai tous les deux. C'est déjà trop.",
+    "Mme Brico-Laure dit vrai. Donc Jean-Mi ment… et Kévin aussi."
+  ];
+  var HINTS5 = [
+    "Avant de porter quoi que ce soit, regarde où tu vas mettre les pieds.",
+    "35 kilos, on ne les porte pas seul, et pas à reculons.",
+    "Une seule réponse commence par « Attendez »."
+  ];
+  function c4Intro(){ return [
+    {scene:'local'},
+    {who:null, text:"Le local à outils. Kévin range des balais avec beaucoup d'énergie."},
+    {id:'s6_01', who:'kevin', text:"Bonjour ! Kévin, intérimaire, deuxième jour. Je peux vous aider ? J'aime bien aider."},
+    {id:'s6_02', who:'hortense', text:"On a remarqué. Qui a étalé les cartons sur le quai ?"},
+    {who:null, text:"Kévin, Jean-Mi et Mme Brico-Laure se retrouvent face à Hortense. Chacun a sa version."},
+    {id:'s6_03', who:'kevin', text:"Ce n'est pas moi qui ai étalé les cartons."},
+    {id:'s6_04', who:'jeanmi', text:"C'est Mme Brico-Laure qui les a étalés."},
+    {id:'s6_05', who:'brico', text:"Jean-Mi ment."}
+  ]; }
+  function c4Mid(){ return [
+    {id:'s6_06', who:'kevin', text:"Bon, oui, c'est moi. Le quai glissait, alors j'ai étalé les cartons pour faire un tapis. Chez ma grand-mère, on fait ça devant la porte quand il pleut."},
+    {id:'s6_07', who:'hortense', text:"Chez votre grand-mère, il n'y a pas de quai à un mètre cinquante de haut. Carton mouillé plus pluie, ça fait une patinoire. On vous l'aurait appris lors de l'accueil sécurité."},
+    {id:'s6_08', who:'kevin', text:"Lequel ?"},
+    {id:'s6_09', who:'hortense', text:"Justement."},
+    {call:function(){ addPiece("Déclaration de Kévin : a étalé les cartons mouillés sur le quai « pour faire un tapis »"); }},
+    {call:function(){ setChap(4, 'Le quai'); }},
+    {scene:'quai'},
+    {who:null, text:"Retour sur le quai. Un collègue a apporté une poche de glace à Gégé."},
+    {id:'s7_01', who:'hortense', text:"Gérard, vous aviez bien vos chaussures de sécurité. Je l'ai noté."},
+    {id:'s7_02', who:'gege', text:"Ah ! Vous voyez."},
+    {id:'s7_03', who:'hortense', text:"Lacées ?"},
+    {id:'s7_04', who:'gege', text:"… Tony est arrivé en avance, j'ai couru. Je les aurais lacées après."},
+    {who:null, text:"Pipo se pose à côté de Gégé et tire sur le lacet défait avec son bec."},
+    {who:'pipo', text:"Rrrou."},
+    {call:function(){ addPiece("Chaussures de sécurité de Gégé : portées, mais lacets défaits"); }},
+    {who:null, text:"Hortense rembobine la scène. Retour à 9h40, sur le quai mouillé, sans barrière, couvert de cartons…"},
+    {id:'s7_05', who:'brico', text:"Monsieur ! Vous pouvez m'aider, c'est lourd et je suis pressée !"}
+  ]; }
+  function c4End(){ return [
+    {id:'s7_09', who:'gege', text:"Deux minutes de plus pour sécuriser… contre trois semaines d'arrêt. C'est vrai que le calcul est vite fait."}
+  ]; }
+
+  function startChapter4(){
+    stopVoice();
+    S.chapter = 4; S.v4 = 50; S.h4 = 0; S.v5 = 30; S.h5 = 0;
+    setChap(4, 'Le local');
+    stage.classList.remove('hunt');
+    S.mode = 'dialog';
+    run(c4Intro(), startLiar);
+  }
+
+  /* --- Énigme n°4 : un seul dit vrai --- */
+  function startLiar(){ stopVoice(); S.mode = 'liar'; renderLiar("Qui a étalé les cartons ? Touche un suspect.", ''); }
+  function renderLiar(msg, cls){
+    var hints = '';
+    for (var h=0;h<S.h4;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS4[h])+'</span></div>';
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme n°4</span><h2>Un seul dit vrai</h2></div><span class="worth">'+S.v4+' pts en jeu</span></div>'+
+      '<div class="says">'+SAYS.map(function(x){ return '<div class="say"><div class="pf">'+PF[x.who]+'</div><div><small>'+NAMES[x.who]+'</small><q>'+esc(x.t)+'</q></div></div>'; }).join('')+'</div>'+
+      '<p style="margin:0">Hortense sait qu\'<b>un seul</b> des trois dit la vérité. Qui a étalé les cartons ?</p>'+
+      '<div class="pick">'+['kevin','jeanmi','brico'].map(function(k){ return '<button type="button" data-k="'+k+'"><span class="pf">'+PF[k]+'</span>'+NAMES[k]+'</button>'; }).join('')+'</div>'+
+      '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
+      (hints ? '<div class="hints">'+hints+'</div>' : '')+
+      '<button class="btn ghost" id="btn-hint4" type="button"'+(S.h4>=3?' disabled':'')+'>'+(S.h4>=3?'Plus d\'indice':'Indice '+(S.h4+1)+' · 1 boulon')+'</button>'+
+    '</div>';
+    panel.querySelectorAll('.pick button').forEach(function(b){ b.onclick = function(){ checkLiar(b.getAttribute('data-k')); }; });
+    document.getElementById('btn-hint4').onclick = function(){
+      if (S.h4 >= 3) return;
+      if (S.bolts < 1){ renderLiar("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
+      S.bolts--; S.h4++; hud(); renderLiar("Hortense glisse un indice dans ton carnet.", '');
+    };
+  }
+  function checkLiar(k){
+    if (S.mode !== 'liar') return;
+    if (k === 'kevin'){
+      sfxSuccess(); S.mode = 'wait';
+      renderLiar("Kévin ! Sa phrase est fausse, celle de Jean-Mi aussi, et Mme Brico-Laure dit vrai en affirmant que Jean-Mi ment. Une seule vérité : c'est cohérent.", 'good');
+      setTimeout(function(){ S.total += S.v4; S.score4 = S.v4; hud(); S.mode = 'dialog'; run(c4Mid(), startReflex); }, 2600);
+      return;
+    }
+    sfxMiss();
+    var lost = S.v4 > 25; if (lost) S.v4 = Math.max(25, S.v4 - 5);
+    var why = k === 'brico'
+      ? "Si c'est Mme Brico-Laure, Kévin et Jean-Mi disent vrai tous les deux. Ça fait deux vérités."
+      : "Si c'est Jean-Mi, Kévin dit vrai, et Mme Brico-Laure aussi quand elle dit que Jean-Mi ment. Ça fait deux vérités.";
+    renderLiar(why + (lost ? " −5 points Vigilance." : ""), 'bad');
+  }
+
+  /* --- Énigme n°5 : le bon réflexe --- */
+  var QCM5 = [
+    {k:'A', t:"« Pas de souci, je le porte tout seul à reculons, j'ai l'habitude. »", id:'s7_06', r:"C'est exactement ce qu'il a fait. On connaît la fin."},
+    {k:'B', t:"« Attendez, madame. Je sécurise d'abord le quai : je remets la barrière, je dégage les cartons, puis on le porte à deux, en marche avant. »"},
+    {k:'C', t:"« Lancez-le, je le rattrape. »", id:'s7_07', r:"Un plan de travail de 35 kilos n'est pas un frisbee."},
+    {k:'D', t:"« Revenez demain, on est fermés. » (Il est 9h40.)", id:'s7_08', r:"Tentant, mais ce n'est ni vrai, ni sûr, ni poli."}
+  ];
+  function startReflex(){ stopVoice(); S.mode = 'reflex'; renderReflex("", ''); }
+  function renderReflex(msg, cls, who){
+    var hints = '';
+    for (var h=0;h<S.h5;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS5[h])+'</span></div>';
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme n°5</span><h2>Le bon réflexe</h2></div><span class="worth">'+S.v5+' pts en jeu</span></div>'+
+      '<p style="margin:0">Le quai est mouillé, couvert de cartons, sans barrière, avec un vide à côté de la benne. Que doit répondre Gégé ?</p>'+
+      '<div class="qcm">'+QCM5.map(function(o){ return '<button type="button" class="btn choice" data-k="'+o.k+'"><b>'+o.k+'</b>'+esc(o.t)+'</button>'; }).join('')+'</div>'+
+      (msg ? (who ? '<div class="who"><div class="pf" style="width:44px;height:44px">'+PF[who]+'</div><p class="fb '+cls+'" id="fb" style="margin:0;min-height:0">'+esc(msg)+'</p></div>' : '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>') : '')+
+      (hints ? '<div class="hints">'+hints+'</div>' : '')+
+      '<button class="btn ghost" id="btn-hint5" type="button"'+(S.h5>=3?' disabled':'')+'>'+(S.h5>=3?'Plus d\'indice':'Indice '+(S.h5+1)+' · 1 boulon')+'</button>'+
+    '</div>';
+    panel.querySelectorAll('.qcm button').forEach(function(b){ b.onclick = function(){ checkReflex(b.getAttribute('data-k')); }; });
+    document.getElementById('btn-hint5').onclick = function(){
+      if (S.h5 >= 3) return;
+      if (S.bolts < 1){ renderReflex("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
+      S.bolts--; S.h5++; hud(); renderReflex("Hortense glisse un indice dans ton carnet.", '');
+    };
+  }
+  function checkReflex(k){
+    if (S.mode !== 'reflex') return;
+    if (k === 'B'){
+      sfxSuccess(); S.mode = 'wait';
+      renderReflex("Bonne réponse : on sécurise d'abord, on porte à deux, en marche avant.", 'good');
+      setTimeout(function(){ S.total += S.v5; S.score5 = S.v5; hud(); S.mode = 'dialog'; run(c4End(), showEnd4); }, 1500);
+      return;
+    }
+    sfxMiss();
+    var o = QCM5.filter(function(x){ return x.k === k; })[0];
+    var lost = S.v5 > 15; if (lost) S.v5 = Math.max(15, S.v5 - 3);
+    playVoice(o.id);
+    renderReflex(o.r + (lost ? " (−3 points Vigilance)" : ""), 'bad', 'hortense');
+  }
+  function showEnd4(){
+    S.mode = 'end'; stopVoice();
+    panel.innerHTML =
+      '<div class="stack end">'+
+        '<span class="eyebrow dark">Fin du chapitre 4</span>'+
+        '<h2>Le tapis de Kévin</h2>'+
+        '<dl class="score">'+
+          '<div><dt>Énigme 4</dt><dd>'+S.v4+'<small style="font-size:13px"> / 50</small></dd></div>'+
+          '<div><dt>Énigme 5</dt><dd>'+S.v5+'<small style="font-size:13px"> / 30</small></dd></div>'+
+          '<div><dt>Total</dt><dd>'+S.total+'</dd></div>'+
+        '</dl>'+
+        '<p>Toutes les pièces sont réunies : cartons de Kévin, lacets de Gégé, plan de travail de Mme Brico-Laure. Place au dénouement.</p>'+
+        '<div class="row"><button class="btn" id="next-ch5" type="button">Chapitre 5 · Le dénouement</button><button class="btn ghost" id="end-carnet4" type="button">Ouvrir le carnet</button></div>'+
+      '</div>';
+    document.getElementById('next-ch5').onclick = startChapter5;
+    document.getElementById('end-carnet4').onclick = openCarnet;
+  }
+
+  /* =========================================================
+     CHAPITRE 5 : le dénouement, la chaîne des causes, l'épilogue
+     ========================================================= */
+  var CAUSES = [
+    {id:1, t:"La rotation a été avancée sans prévenir le site", ok:true},
+    {id:2, t:"Jean-Mi a poussé Gégé", ok:false, why:"Il était à 20 mètres, perché sur un frigo."},
+    {id:3, t:"La benne a été reposée avec un écart par rapport au quai", ok:true},
+    {id:4, t:"La barrière du quai n'a pas été remise après la rotation", ok:true},
+    {id:5, t:"Gégé ne portait pas ses chaussures de sécurité", ok:false, why:"Il les portait, mais non lacées."},
+    {id:6, t:"Les cartons mouillés ont été étalés sur le quai", ok:true},
+    {id:7, t:"Kévin n'a pas eu d'accueil sécurité", ok:true},
+    {id:8, t:"La benne 3 est hantée", ok:false, why:"Pipo confirme : aucun fantôme."},
+    {id:9, t:"L'usagère pressée a demandé de porter une charge lourde", ok:true},
+    {id:10, t:"Gégé a porté 35 kg seul, à reculons, avec les lacets défaits", ok:true}
+  ];
+  var LINKS = [
+    {q:"Pourquoi Gégé s'est-il précipité, lacets défaits, et pourquoi la rotation a-t-elle été bâclée ?", a:0, o:["La rotation a été avancée sans prévenir le site","Il pleuvait trop fort","Nadine lui a demandé de se dépêcher"]},
+    {q:"Pourquoi la benne était-elle décalée et la barrière absente ?", a:1, o:["Jean-Mi a déplacé la benne","La rotation a été faite dans la précipitation, sans les étapes de sécurité","Le quai est trop petit"]},
+    {q:"Pourquoi Kévin a-t-il étalé des cartons sur le quai mouillé ?", a:2, o:["Mme Brico-Laure le lui a demandé","Il voulait ranger le local","Il n'avait pas eu d'accueil sécurité"]},
+    {q:"Pourquoi Gégé a-t-il porté 35 kg seul, à reculons ?", a:0, o:["L'usagère pressée lui a demandé de l'aide, et il n'a pas sécurisé d'abord","Tony le lui a demandé","C'est la consigne du site"]}
+  ];
+  var HINTS6 = [
+    "Trois cartes sont des fausses pistes. L'une d'elles est franchement surnaturelle.",
+    "Gégé portait bien ses chaussures. La question, c'est comment.",
+    "Le point de départ de toute la chaîne est un coup de fil qui n'a pas été passé."
+  ];
+  var CHAIN = ["Rotation avancée sans prévenir le site","Gégé se précipite, lacets défaits · rotation bâclée","Benne décalée · barrière non remise","Mme Brico-Laure pose ses cartons au sol","Kévin, sans accueil sécurité, les étale sur le quai mouillé","L'usagère pressée demande de l'aide pour 35 kg","Gégé porte seul, à reculons, sur un quai glissant","Entorse de Gégé"];
+
+  function c5Intro(){ return [
+    {scene:'bungalow'},
+    {call:function(){ document.getElementById('planning-ink').setAttribute('opacity', 1); }},
+    {who:null, text:"Le bungalow d'accueil. Tout le monde est réuni : Gégé, Nadine, Tony, Mme Brico-Laure, Kévin, Jean-Mi. Pipo s'est posé sur le rebord de la fenêtre."},
+    {id:'s8_01', who:'hortense', text:"Mesdames et messieurs, j'ai réuni tout le monde, car le coupable est dans cette pièce."},
+    {who:null, text:"Tout le monde se regarde."},
+    {id:'s8_02', who:'hortense', text:"{Insp}, à vous de conclure."}
+  ]; }
+  function c5After(){ return [
+    {id:'s8_03', who:'hortense', text:"Le coupable, c'était… personne. Et un peu tout le monde. Tony, qui n'a pas appelé. Nadine, qui n'a pas eu le temps. Kévin, à qui personne n'avait rien expliqué. Madame, qui était pressée. Et Gérard, qui a voulu bien faire, vite."},
+    {id:'s8_04', who:'gege', text:"Et le pigeon ?"},
+    {id:'s8_05', who:'hortense', text:"Le pigeon est innocent. Pour une fois."},
+    {who:'pipo', text:"Rrrou."},
+    {call:function(){ setChap(5, 'Épilogue'); }},
+    {scene:'calme'},
+    {who:null, text:"Quelques jours plus tard. La pluie s'est arrêtée. Chacun a pris un engagement."},
+    {id:'ep_01', who:'tony', text:"J'appelle le site avant chaque rotation, surtout quand le planning change."},
+    {id:'ep_02', who:'nadine', text:"Aucun nouvel arrivant ne va sur le quai avant son accueil sécurité. Téléphone ou pas."},
+    {id:'ep_03', who:'kevin', text:"Pas de cartons au sol. Si le quai glisse, je préviens et je balise."},
+    {id:'ep_04', who:'brico', text:"Je demande de l'aide, mais j'attends que le quai soit sécurisé."},
+    {id:'ep_05', who:'jeanmi', text:"Je ne monte plus dans les bennes. … Je vais essayer."},
+    {id:'ep_06', who:'gege', text:"Chaussures lacées, charges lourdes à deux, jamais à reculons. Quatorze ans d'expérience, ça n'empêche pas de glisser."},
+    {id:'ep_07', who:'hortense', text:"Retenez ceci, {insp} : un accident n'a presque jamais un seul coupable. Il a une chaîne de causes. Il suffit de casser un maillon."}
+  ]; }
+
+  function startChapter5(){
+    stopVoice();
+    S.chapter = 5; S.v6 = 80; S.h6 = 0; S.sel = []; S.links = {}; S.step6 = 1;
+    setChap(5, 'Dénouement');
+    stage.classList.remove('hunt');
+    S.mode = 'dialog';
+    run(c5Intro(), startCauses);
+  }
+  function hintBtn6(){ return '<button class="btn ghost" id="btn-hint6" type="button"'+(S.h6>=3?' disabled':'')+'>'+(S.h6>=3?'Plus d\'indice':'Indice '+(S.h6+1)+' · 1 boulon')+'</button>'; }
+  function hints6(){ var h=''; for (var i=0;i<S.h6;i++) h += '<div class="hint"><b>Indice '+(i+1)+'</b><span>'+esc(HINTS6[i])+'</span></div>'; return h ? '<div class="hints">'+h+'</div>' : ''; }
+  function wireHint6(render){
+    document.getElementById('btn-hint6').onclick = function(){
+      if (S.h6 >= 3) return;
+      if (S.bolts < 1){ render("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
+      S.bolts--; S.h6++; hud(); render("Hortense glisse un indice dans ton carnet.", '');
+    };
+  }
+
+  /* Étape 1 : les 7 vraies causes */
+  function startCauses(){ stopVoice(); S.mode = 'causes'; renderCauses("Sélectionne les 7 vraies causes, puis valide.", ''); }
+  function renderCauses(msg, cls, marks){
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme finale · 1/2</span><h2>La chaîne des causes</h2></div><span class="worth">'+S.v6+' pts en jeu</span></div>'+
+      '<p style="margin:0">Parmi ces 10 cartes, sélectionne les <b>7 vraies causes</b> de l\'accident de Gégé. <span id="cnt">('+S.sel.length+'/7)</span></p>'+
+      '<div class="causes">'+CAUSES.map(function(c){
+        var on = S.sel.indexOf(c.id) >= 0, m = marks ? (on ? (c.ok ? ' ok' : ' ko') : '') : '';
+        return '<button type="button" class="cause'+m+'" data-id="'+c.id+'" aria-pressed="'+on+'"><span class="box">'+(on?'✓':'')+'</span><span>'+esc(c.t)+'</span></button>';
+      }).join('')+'</div>'+
+      '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+ hints6()+
+      '<div class="row"><button class="btn" id="c-ok" type="button">Valider</button>'+hintBtn6()+'</div>'+
+    '</div>';
+    panel.querySelectorAll('.cause').forEach(function(b){ b.onclick = function(){
+      var id = +b.getAttribute('data-id'), i = S.sel.indexOf(id);
+      if (i >= 0) S.sel.splice(i,1); else S.sel.push(id);
+      var on = i < 0; b.setAttribute('aria-pressed', on); b.querySelector('.box').textContent = on ? '✓' : ''; b.classList.remove('ok','ko');
+      document.getElementById('cnt').textContent = '('+S.sel.length+'/7)';
+    }; });
+    document.getElementById('c-ok').onclick = checkCauses;
+    wireHint6(function(m,c){ renderCauses(m,c); });
+  }
+  function checkCauses(){
+    var good = S.sel.filter(function(id){ return CAUSES[id-1].ok; }).length;
+    var bad = S.sel.length - good;
+    if (good === 7 && bad === 0){
+      sfxFound(); S.mode = 'wait';
+      renderCauses("Les 7 bonnes causes. Jean-Mi, les chaussures et le fantôme étaient des fausses pistes.", 'good', true);
+      setTimeout(function(){ S.step6 = 2; startLinks(); }, 1800);
+      return;
+    }
+    sfxMiss();
+    var lost = S.v6 > 40; if (lost) S.v6 = Math.max(40, S.v6 - 8);
+    var bads = S.sel.filter(function(id){ return !CAUSES[id-1].ok; }).map(function(id){ return CAUSES[id-1].why; });
+    var msg = good + " vraie" + (good>1?"s":"") + " cause" + (good>1?"s":"") + " sur 7" + (bad ? ", " + bad + " fausse" + (bad>1?"s":"") + " piste" + (bad>1?"s":"") + " : " + bads.join(" ") : ".");
+    renderCauses(msg + (lost ? " −8 points Vigilance." : ""), 'bad', true);
+  }
+
+  /* Étape 2 : relier les maillons */
+  function startLinks(){ S.mode = 'links'; renderLinks("Pour chaque maillon, choisis ce qui l'a provoqué.", ''); }
+  function renderLinks(msg, cls){
+    panel.innerHTML = '<div class="stack">'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme finale · 2/2</span><h2>Relie les maillons</h2></div><span class="worth">'+S.v6+' pts en jeu</span></div>'+
+      LINKS.map(function(l, i){
+        var done = S.links[i] === l.a;
+        return '<div class="link-q'+(done?' done':'')+'"><p>'+esc(l.q)+'</p><div class="opts">'+l.o.map(function(o, j){
+          return '<button type="button" data-i="'+i+'" data-j="'+j+'" aria-pressed="'+(S.links[i]===j)+'">'+esc(o)+'</button>';
+        }).join('')+'</div></div>';
+      }).join('')+
+      '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+ hints6()+
+      '<div class="row"><button class="btn" id="l-ok" type="button">Valider la chaîne</button>'+hintBtn6()+'</div>'+
+    '</div>';
+    panel.querySelectorAll('.opts button').forEach(function(b){ b.onclick = function(){
+      var i = +b.getAttribute('data-i'), j = +b.getAttribute('data-j');
+      S.links[i] = j;
+      b.parentNode.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); });
+    }; });
+    document.getElementById('l-ok').onclick = checkLinks;
+    wireHint6(function(m,c){ renderLinks(m,c); });
+  }
+  function checkLinks(){
+    var missing = LINKS.filter(function(l,i){ return S.links[i] === undefined; }).length;
+    if (missing){ renderLinks("Il manque " + missing + " réponse" + (missing>1?"s":"") + ".", 'coo'); return; }
+    var wrong = LINKS.filter(function(l,i){ return S.links[i] !== l.a; }).length;
+    if (!wrong){
+      sfxSuccess(); S.mode = 'wait';
+      showChain();
+      return;
+    }
+    sfxMiss();
+    LINKS.forEach(function(l,i){ if (S.links[i] !== l.a) delete S.links[i]; });
+    var lost = S.v6 > 40; if (lost) S.v6 = Math.max(40, S.v6 - 8);
+    renderLinks(wrong + " maillon" + (wrong>1?"s":"") + " à revoir (les bons sont en vert)." + (lost ? " −8 points Vigilance." : ""), 'bad');
+  }
+  function showChain(){
+    S.total += S.v6; S.score6 = S.v6; hud();
+    panel.innerHTML = '<div class="stack">'+
+      '<span class="eyebrow dark">Affaire reconstituée</span><h2>La chaîne complète</h2>'+
+      '<ul class="chain">'+CHAIN.map(function(c, i){ return (i ? '<li class="arrow" aria-hidden="true">↓</li>' : '') + '<li'+(i===CHAIN.length-1?' class="last"':'')+'>'+esc(c)+'</li>'; }).join('')+'</ul>'+
+      '<button class="btn" id="chain-ok" type="button">Écouter la conclusion</button>'+
+    '</div>';
+    document.getElementById('chain-ok').onclick = function(){ S.mode = 'dialog'; run(c5After(), showFinal); };
+  }
+
+  /* Écran final */
+  function rankFor(t){
+    if (t >= 240) return ["Inspecteur Œil-de-Lynx", "Rien ne vous échappe, même pas un lacet."];
+    if (t >= 180) return ["Inspecteur Confirmé", "Quelques glissades, mais l'enquête est bouclée."];
+    if (t >= 120) return ["Inspecteur Stagiaire", "Pipo vous a beaucoup aidé."];
+    return ["Inspecteur en accueil sécurité", "Comme Kévin, on reprend les bases. Et ce n'est pas grave."];
+  }
+  function showFinal(){
+    S.mode = 'end'; stopVoice(); sfxSuccess();
+    var r = rankFor(S.total), title = r[0];
+    if (S.titre === 'Inspectrice') title = title.replace('Inspecteur', 'Inspectrice').replace('Confirmé', 'Confirmée');
+    var played = [S.score1, S.score2, S.score3, S.score4, S.score5, S.score6].filter(function(x){ return x !== null; }).length;
+    panel.innerHTML =
+      '<div class="stack end">'+
+        '<span class="eyebrow dark">Affaire résolue</span>'+
+        '<h2>L\'Affaire de la Benne 3</h2>'+
+        '<dl class="score">'+
+          '<div><dt>Vigilance</dt><dd>'+S.total+'<small style="font-size:13px"> / 270</small></dd></div>'+
+          '<div><dt>Énigmes</dt><dd>'+played+'<small style="font-size:13px"> / 6</small></dd></div>'+
+          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
+        '</dl>'+
+        '<p class="rank">'+esc(title)+(S.name ? ' ' + esc(S.name) : '')+'</p>'+
+        '<p>'+esc(r[1])+'</p>'+
+        (played < 6 ? '<p class="soon">Tu as commencé en cours de route : le score maximal suppose les 6 énigmes.</p>' : '')+
+        '<p class="soon">Un accident n\'a presque jamais un seul coupable. Il suffit de casser un maillon.</p>'+
+        '<div class="row"><button class="btn" id="end-carnet5" type="button">Ouvrir le carnet</button><button class="btn ghost" id="replay5" type="button">Rejouer</button></div>'+
+      '</div>';
+    document.getElementById('end-carnet5').onclick = openCarnet;
+    document.getElementById('replay5').onclick = replay;
+  }
+
+  /* ---------- Carnet ---------- */
+  function openCarnet(){
+    var who = S.name ? S.titre + ' ' + S.name : (S.mode === 'title' ? 'à renseigner' : S.titre);
+    var found = S.found.map(function(id){ return ANOM.filter(function(a){ return a.id === id; })[0].t; });
+    var h = '<p>Enquêteur : '+esc(who)+'</p>'+
+      '<p>Affaire : Gérard, dit Gégé, blessé à la cheville sur le quai de la déchetterie des Peupliers.</p>'+
+      '<h3>Pièces à conviction</h3>'+
+      (S.pieces.length ? '<ul>'+S.pieces.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>' : '<p class="locked">Rien pour l\'instant.</p>')+
+      '<h3>Anomalies relevées ('+S.found.length+'/7)</h3>'+
+      (found.length ? '<ul>'+found.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>' : '<p class="locked">Aucune pour l\'instant.</p>')+
+      '<h3>Pistes</h3>'+
+      (S.pistes
+        ? '<ul><li>Tony Benne, chauffeur ampliroll</li><li>Mme Brico-Laure, usagère pressée</li><li>Kévin, intérimaire depuis deux jours</li><li>Jean-Mi Récup, habitué des bennes</li></ul>'
+        : '<p class="locked">Résous l\'énigme du quai pour ouvrir les pistes.</p>')+
+      ((S.hints || S.h2 || S.h3 || S.h4 || S.h5 || S.h6) ? '<h3>Indices</h3><ul>'+HINTS.slice(0,S.hints).concat(HINTS2.slice(0,S.h2), HINTS3.slice(0,S.h3), HINTS4.slice(0,S.h4), HINTS5.slice(0,S.h5), HINTS6.slice(0,S.h6)).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>' : '');
+    document.getElementById('carnet-body').innerHTML = h;
+    document.getElementById('carnet').hidden = false;
+    document.getElementById('carnet-close').focus({preventScroll:true});
+  }
+  function closeCarnet(){ document.getElementById('carnet').hidden = true; }
+  document.getElementById('btn-carnet').onclick = openCarnet;
+  document.getElementById('carnet-close').onclick = closeCarnet;
+  document.getElementById('carnet').addEventListener('click', function(e){ if (e.target.id === 'carnet') closeCarnet(); });
+
+  hud();
+  showTitle();
+})();
+</script>
