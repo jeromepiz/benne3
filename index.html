@@ -166,7 +166,7 @@ button{font-family:inherit}
 .hint span{font-family:var(--hand);font-size:18px;line-height:1.3;color:#2A2100}
 
 /* Fin de chapitre */
-.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin:0}
 .score div{background:var(--feuille);border-radius:8px;padding:8px 10px;box-shadow:inset 0 0 0 2px var(--manille-2)}
 .score dt{font-size:13px;color:var(--muted)}
 .score dd{margin:0;font-family:var(--display);font-weight:800;font-size:32px;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -301,6 +301,7 @@ button{font-family:inherit}
   .toast,.stage,.btn{transition:none}
 }
 
+.stat:has(#hud-bolts),[id^="bolt-"]{display:none!important}
 </style>
 </head>
 <body>
@@ -556,12 +557,9 @@ button{font-family:inherit}
     {who:null, text:"La voiture se gare devant la déchetterie. Un pigeon se pose sur le capot."},
     {who:'pipo', text:"Rrrou."},
     {id:'s0_03', who:'hortense', text:"Ah, le témoin le plus fiable du site. Il ne ment jamais. Il ne parle pas non plus, remarquez."},
-    {tutorial:true},
     {scene:'quai'},
     {who:null, text:"Le quai de déchargement, sous la pluie. Gégé est assis au bord, le pied posé sur un seau retourné. Nadine est au téléphone dans le bungalow."},
     {id:'s1_01', who:'gege', text:"Ah, vous êtes l'{insp} ? Écoutez, j'ai glissé, c'est tout. Quatorze ans que je fais ce quai, je pourrais le faire les yeux fermés."},
-    {id:'s1_02', who:'hortense', text:"C'est un peu ce qui m'inquiète."},
-    {id:'s1_03', who:'gege', text:"Et j'avais mes chaussures de sécurité, hein ! Notez-le bien."},
     {id:'s1_04', who:'hortense', text:"Noté. {Insp}, avant d'écouter les belles histoires, regardons ce que le quai, lui, a à nous dire."}
   ];
   var SUCCESS = [
@@ -578,11 +576,7 @@ button{font-family:inherit}
     {id:6, r:[290,415,200,230], t:"Quelqu'un est monté dans la benne ferraille !"},
     {id:7, r:[700,585,60,100], t:"L'extincteur est posé par terre contre les palettes, loin de son support."}
   ];
-  var BOLTS = [
-    {id:'g', r:[262,326,48,48]},
-    {id:'a', r:[389,282,48,48]},
-    {id:'s', r:[858,642,52,44]}
-  ];
+  var BOLTS = [];
   var HINTS = [
     "Ce qui devrait empêcher de tomber n'est pas à sa place.",
     "Regarde entre le quai et les bennes, pas seulement dessus.",
@@ -734,7 +728,7 @@ button{font-family:inherit}
     if (reduce){ lineEl.textContent = full; afterType(); return; }
     var i = 0, tick = 0; lineEl.textContent = '';
     typing = setInterval(function(){
-      i += 2; lineEl.textContent = full.slice(0, i);
+      i += 4; lineEl.textContent = full.slice(0, i);
       if (tick++ % 3 === 0 && SND.on) blip();
       if (i >= full.length){ clearInterval(typing); typing = null; afterType(); }
     }, 22);
@@ -794,7 +788,7 @@ button{font-family:inherit}
     for (var i=1;i<=7;i++) dots += '<span class="dot'+(i<=S.found.length?' on':'')+'">'+i+'</span>';
     var hints = '';
     for (var h=0;h<S.hints;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS[h])+'</span></div>';
-    var hintLabel = S.hints >= 3 ? 'Plus d\'indice disponible' : 'Indice ' + (S.hints+1) + ' · 1 boulon';
+    var hintLabel = S.hints >= 3 ? 'Plus d\'indice disponible' : 'Indice ' + (S.hints+1) + ' · −3 pts';
     panel.innerHTML =
       '<div class="stack">'+
         '<div class="puz-head"><div><span class="eyebrow dark">Énigme n°1</span><h2>Le quai qui parle</h2></div><span class="worth" id="worth">'+S.value+' pts en jeu</span></div>'+
@@ -808,8 +802,7 @@ button{font-family:inherit}
   }
   function useHint(){
     if (S.hints >= 3) return;
-    if (S.bolts < 1){ renderPuzzle("Il te faut un boulon doré. Trois sont cachés dans le décor : regarde bien les recoins.", 'coo'); return; }
-    S.bolts--; S.hints++; hud();
+    S.hints++; S.value = Math.max(10, S.value - 3); hud();
     renderPuzzle("Hortense glisse un indice dans ton carnet.", '');
   }
 
@@ -918,7 +911,6 @@ button{font-family:inherit}
         '<dl class="score">'+
           '<div><dt>Vigilance</dt><dd>'+S.value+'<small style="font-size:13px"> / 30</small></dd></div>'+
           '<div><dt>Indices</dt><dd>'+S.hints+'</dd></div>'+
-          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
         '</dl>'+
         '<p>Nouvelles pistes dans ton carnet : Tony Benne, Mme Brico-Laure, Kévin et Jean-Mi Récup.</p>'+
         '<div class="row"><button class="btn" id="next-ch" type="button">Chapitre 2 · Le bungalow</button><button class="btn ghost" id="end-carnet" type="button">Ouvrir le carnet</button></div>'+
@@ -941,7 +933,7 @@ button{font-family:inherit}
   /* =========================================================
      CHAPITRE 2 : le bungalow d'accueil et le camion
      ========================================================= */
-  var BOLTS2 = [ {id:'b1', r:[918,368,60,60]}, {id:'b2', r:[1032,738,60,60]} ];
+  var BOLTS2 = [];
   var svgB = document.getElementById('sv-bungalow');
   var marks2 = document.getElementById('marks2'), fx2 = document.getElementById('fx2');
 
@@ -984,7 +976,6 @@ button{font-family:inherit}
     {scene:'bungalow'},
     {who:null, text:"Le bungalow d'accueil. Un bureau encombré, un planning au mur, une machine à café qui fume. Nadine raccroche enfin."},
     {id:'s2_01', who:'nadine', text:"Désolée, c'était la mairie, puis le prestataire, puis encore la mairie. Gégé ? Il va bien ? Ah oui, il râle, donc il va bien."},
-    {id:'s2_02', who:'hortense', text:"Pouvons-nous voir le planning des rotations ?"},
     {id:'s2_03', who:'nadine', text:"Là, au mur. La benne 3 était prévue à 11h, pendant le creux de fréquentation."}
   ]; }
   function c2Camion(){ return [
@@ -993,10 +984,6 @@ button{font-family:inherit}
     {id:'s3_01', who:'tony', text:"Moi ? J'ai fait mon échange de benne comme d'habitude. Dix minutes, propre et net."},
     {id:'s3_02', who:'hortense', text:"À 9h10 au lieu de 11h."},
     {id:'s3_03', who:'tony', text:"Le dispatch a avancé ma tournée. J'allais pas attendre deux heures en regardant la pluie, si ?"},
-    {to:'Tony', ask:[
-      {q:"Qui a retiré la barrière du quai ?", lines:[{id:'s3_04', who:'tony', text:"Gégé, comme d'hab. Moi je touche pas au quai, je reste dans mon camion."}]},
-      {q:"Vous avez vérifié la position de la benne ?", lines:[{id:'s3_05', who:'tony', text:"Elle était… à peu près là. Avec la pluie, on voit rien dans les rétros. Pourquoi, elle était pas bien ?"}]}
-    ]},
     {id:'s3_06', who:'hortense', text:"« À peu près là. » Trente centimètres de vide, c'est la taille d'une cheville."}
   ]; }
   function c2Success(){ return [
@@ -1014,11 +1001,7 @@ button{font-family:inherit}
     BOLTS2.forEach(function(b){ document.getElementById('bolt-'+b.id).style.display = ''; S.boltsFound = S.boltsFound.filter(function(x){ return x !== b.id; }); });
     setChap(2, 'Le bungalow');
     S.mode = 'dialog';
-    EXP = {scene:'bungalow', svg:svgB, marks:marks2, fx:fx2, spots:SPOTS2, bolts:BOLTS2,
-           eyebrow:'Fouille', title:"Le bungalow d'accueil", intro:"Hortense veut voir deux documents. Trouve-les dans la pièce.",
-           start:"Touche le décor pour fouiller le bungalow.", left:"Bien vu. Il reste un document à trouver.",
-           done:function(){ run(c2Camion(), startOrder); }};
-    run(c2Intro(), startExplore);
+    run(c2Intro().concat(SPOTS2[0].seq, SPOTS2[1].seq), function(){ run(c2Camion(), startOrder); });
   }
   var EXP = null;
 
@@ -1143,15 +1126,14 @@ button{font-family:inherit}
       '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
       (hints ? '<div class="hints">'+hints+'</div>' : '')+
       '<div class="row"><button class="btn" id="btn-check" type="button"'+(S.placed.length<6?' disabled':'')+'>Valider</button>'+
-      '<button class="btn ghost" id="btn-hint2" type="button"'+(S.h2>=3?' disabled':'')+'>'+(S.h2>=3?'Plus d\'indice':'Indice '+(S.h2+1)+' · 1 boulon')+'</button></div>'+
+      '<button class="btn ghost" id="btn-hint2" type="button"'+(S.h2>=3?' disabled':'')+'>'+(S.h2>=3?'Plus d\'indice':'Indice '+(S.h2+1)+' · −3 pts')+'</button></div>'+
     '</div>';
     panel.querySelectorAll('.card').forEach(function(b){ b.onclick = function(){ S.placed.push(b.getAttribute('data-k')); sfxFound(); renderOrder(S.placed.length<6 ? "Étape placée." : "Toutes les étapes sont placées. Valide quand tu es sûr de toi.", '', false); }; });
     panel.querySelectorAll('.slot.filled').forEach(function(b){ b.onclick = function(){ S.placed.splice(+b.getAttribute('data-i'), 1); renderOrder("Étape retirée.", '', false); }; });
     document.getElementById('btn-check').onclick = checkOrder;
     document.getElementById('btn-hint2').onclick = function(){
       if (S.h2 >= 3) return;
-      if (S.bolts < 1){ renderOrder("Il te faut un boulon doré pour acheter un indice.", 'coo', false); return; }
-      S.bolts--; S.h2++; hud(); renderOrder("Hortense glisse un indice dans ton carnet.", '', false);
+      S.h2++; S.v2 = Math.max(10, S.v2 - 3); hud(); renderOrder("Hortense glisse un indice dans ton carnet.", '', false);
     };
   }
   function checkOrder(){
@@ -1176,7 +1158,6 @@ button{font-family:inherit}
         '<dl class="score">'+
           '<div><dt>Vigilance</dt><dd>'+S.v2+'<small style="font-size:13px"> / 40</small></dd></div>'+
           '<div><dt>Total</dt><dd>'+S.total+'</dd></div>'+
-          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
         '</dl>'+
         '<p>Trois nouvelles pièces : le planning raturé, le registre sans signature et la fiche rotation annotée.</p>'+
         '<div class="row"><button class="btn" id="next-ch3" type="button">Chapitre 3 · Le parking</button><button class="btn ghost" id="end-carnet2" type="button">Ouvrir le carnet</button></div>'+
@@ -1188,7 +1169,7 @@ button{font-family:inherit}
   /* =========================================================
      CHAPITRE 3 : le parking (Mme Brico-Laure) et la benne ferraille (Jean-Mi)
      ========================================================= */
-  var BOLTS3 = [ {id:'p1', r:[102,744,60,60]}, {id:'p2', r:[1118,536,60,60]} ];
+  var BOLTS3 = [];
   var svgP = document.getElementById('sv-parking');
   var marks3 = document.getElementById('marks3'), fx3 = document.getElementById('fx3');
   svgP.addEventListener('click', exploreClick);
@@ -1233,10 +1214,6 @@ button{font-family:inherit}
     {id:'s5_01', who:'jeanmi', text:"Salut chef ! Regardez-moi cette merveille. Une chambre à air, deux roues, et ça roule encore dix ans."},
     {id:'s5_02', who:'hortense', text:"Vous étiez dans cette benne ce matin, à 9h40 ?"},
     {id:'s5_03', who:'jeanmi', text:"Dans la benne, sur la benne, autour de la benne… disons dans la zone. J'ai vu Gégé reculer avec un grand plateau. Il a fait un petit pas de danse et paf, le pied dans le trou."},
-    {to:'Jean-Mi', ask:[
-      {q:"Vous l'avez poussé ?", lines:[{id:'s5_04', who:'jeanmi', text:"Moi ? J'étais à vingt mètres, perché sur un frigo. Faudrait des sacrés bras."}]},
-      {q:"Vous savez qu'il est interdit de monter dans les bennes ?", lines:[{id:'s5_05', who:'jeanmi', text:"… Je savais pas que la police des bennes existait."}]}
-    ]},
     {id:'s5_06', who:'hortense', text:"Il n'est pas la cause de l'accident. Mais notez-le quand même : c'est le prochain."},
     {call:function(){ addPiece("Témoignage de Jean-Mi : « un petit pas de danse », « le pied dans le trou »"); }}
   ]; }
@@ -1248,11 +1225,7 @@ button{font-family:inherit}
     BOLTS3.forEach(function(b){ document.getElementById('bolt-'+b.id).style.display = ''; S.boltsFound = S.boltsFound.filter(function(x){ return x !== b.id; }); });
     setChap(3, 'Le parking');
     S.mode = 'dialog';
-    EXP = {scene:'parking', svg:svgP, marks:marks3, fx:fx3, spots:spots3(), bolts:BOLTS3,
-           eyebrow:'Fouille', title:'Le break de Mme Brico-Laure', intro:"Sa version : arrivée à 9h45, après l'accident. Trouve de quoi la vérifier.",
-           start:"Touche le décor pour fouiller autour de la voiture.", left:"Continue de chercher.",
-           done:startTime};
-    run(c3Intro(), startExplore);
+    run(c3Intro().concat(spots3()[0].seq), startTime);
   }
 
   /* --- Énigme n°3 : l'heure ne ment jamais --- */
@@ -1266,6 +1239,12 @@ button{font-family:inherit}
     stopVoice(); S.mode = 'time'; stage.classList.remove('hunt');
     renderTime("Règle l'horloge puis valide.", '');
   }
+  var TQ = [
+    {k:'A', t:"9h45 : comme elle le dit", why:"9h45, c'est sa version. Les preuves disent autre chose."},
+    {k:'B', t:"9h27 : 9h12 + 15 minutes de trajet", why:"9h27, c'est l'arrivée théorique. Le lecteur de plaques est plus précis."},
+    {k:'C', t:"9h30 : plaque lue à 9h29, plus 1 minute pour se garer"},
+    {k:'D', t:"9h12 : l'heure du ticket de caisse", why:"9h12, elle était encore en caisse au magasin."}
+  ];
   function renderTime(msg, cls){
     var hints = '';
     for (var h=0;h<S.h3;h++) hints += '<div class="hint"><b>Indice '+(h+1)+'</b><span>'+esc(HINTS3[h])+'</span></div>';
@@ -1275,28 +1254,23 @@ button{font-family:inherit}
         '<li><span>Ticket de caisse du magasin</span><b>9h12</b></li>'+
         '<li><span>Trajet magasin → déchetterie</span><b>15 min</b></li>'+
         '<li><span>Lecteur de plaques de l\'entrée</span><b>9h29</b></li>'+
-        '<li><span>Se garer et commencer à décharger</span><b>≈ 1 min</b></li>'+
         '<li><span>Accident de Gégé</span><b>9h40</b></li>'+
       '</ul>'+
       '<p style="margin:0"><b>À quelle heure Mme Brico-Laure a-t-elle commencé à décharger ?</b></p>'+
-      '<div class="clock"><button class="round" id="t-minus" type="button" aria-label="Une minute de moins">−</button><output id="t-out" aria-live="polite">'+hhmm(S.t3)+'</output><button class="round" id="t-plus" type="button" aria-label="Une minute de plus">+</button></div>'+
+      '<div class="qcm">'+TQ.map(function(o){ return '<button type="button" class="btn choice" data-k="'+o.k+'"><b>'+o.k+'</b>'+esc(o.t)+'</button>'; }).join('')+'</div>'+
       '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
       (hints ? '<div class="hints">'+hints+'</div>' : '')+
-      '<div class="row"><button class="btn" id="t-ok" type="button">Valider</button>'+
-      '<button class="btn ghost" id="btn-hint3" type="button"'+(S.h3>=3?' disabled':'')+'>'+(S.h3>=3?'Plus d\'indice':'Indice '+(S.h3+1)+' · 1 boulon')+'</button></div>'+
+      '<button class="btn ghost" id="btn-hint3" type="button"'+(S.h3>=3?' disabled':'')+'>'+(S.h3>=3?'Plus d\'indice':'Indice '+(S.h3+1)+' · −3 pts')+'</button>'+
     '</div>';
-    var out = document.getElementById('t-out');
-    document.getElementById('t-minus').onclick = function(){ if (S.t3 > 0){ S.t3--; out.textContent = hhmm(S.t3); tone(520, now(), 0.04, 'square', 0.02); } };
-    document.getElementById('t-plus').onclick = function(){ if (S.t3 < 59){ S.t3++; out.textContent = hhmm(S.t3); tone(620, now(), 0.04, 'square', 0.02); } };
-    document.getElementById('t-ok').onclick = checkTime;
+    panel.querySelectorAll('.qcm button').forEach(function(b){ b.onclick = function(){ checkTime(b.getAttribute('data-k')); }; });
     document.getElementById('btn-hint3').onclick = function(){
       if (S.h3 >= 3) return;
-      if (S.bolts < 1){ renderTime("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
-      S.bolts--; S.h3++; hud(); renderTime("Hortense glisse un indice dans ton carnet.", '');
+      S.h3++; S.v3 = Math.max(10, S.v3 - 3); hud(); renderTime("Hortense glisse un indice dans ton carnet.", '');
     };
   }
-  function checkTime(){
-    if (S.t3 === 30){
+  function checkTime(k){
+    if (S.mode !== 'time') return;
+    if (k === 'C'){
       sfxSuccess(); S.mode = 'wait';
       renderTime("9h30 : elle déchargeait dix minutes avant l'accident. Elle était là.", 'good');
       setTimeout(function(){ S.total += S.v3; S.score3 = S.v3; hud(); S.mode = 'dialog'; run(c3After(), showEnd3); }, 1400);
@@ -1304,13 +1278,8 @@ button{font-family:inherit}
     }
     sfxMiss();
     var lost = S.v3 > 20; if (lost) S.v3 = Math.max(20, S.v3 - 4);
-    var why = S.t3 === 45 ? "9h45, c'est sa version. Les preuves disent autre chose."
-      : S.t3 === 27 ? "9h27, c'est l'arrivée théorique. Le lecteur de plaques est plus précis."
-      : S.t3 === 29 ? "9h29, c'est l'entrée sur le site. Il faut encore se garer."
-      : S.t3 === 12 ? "9h12, elle était encore en caisse au magasin."
-      : S.t3 < 30 ? "Trop tôt : à cette heure-là, elle n'était pas encore là."
-      : "Trop tard : les preuves la placent sur le site plus tôt.";
-    renderTime(why + (lost ? " −4 points Vigilance." : ""), 'bad');
+    var o = TQ.filter(function(x){ return x.k === k; })[0];
+    renderTime(o.why + (lost ? " −4 points Vigilance." : ""), 'bad');
   }
   function showEnd3(){
     railDone(3);
@@ -1322,7 +1291,6 @@ button{font-family:inherit}
         '<dl class="score">'+
           '<div><dt>Vigilance</dt><dd>'+S.v3+'<small style="font-size:13px"> / 40</small></dd></div>'+
           '<div><dt>Total</dt><dd>'+S.total+'</dd></div>'+
-          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
         '</dl>'+
         '<p>Mme Brico-Laure était bien là à 9h30, et Jean-Mi a tout vu depuis son frigo. Reste à savoir qui a étalé les cartons.</p>'+
         '<div class="row"><button class="btn" id="next-ch4" type="button">Chapitre 4 · Le local</button><button class="btn ghost" id="end-carnet3" type="button">Ouvrir le carnet</button></div>'+
@@ -1362,15 +1330,11 @@ button{font-family:inherit}
   function c4Mid(){ return [
     {id:'s6_06', who:'kevin', text:"Bon, oui, c'est moi. Le quai glissait, alors j'ai étalé les cartons pour faire un tapis. Chez ma grand-mère, on fait ça devant la porte quand il pleut."},
     {id:'s6_07', who:'hortense', text:"Chez votre grand-mère, il n'y a pas de quai à un mètre cinquante de haut. Carton mouillé plus pluie, ça fait une patinoire. On vous l'aurait appris lors de l'accueil sécurité."},
-    {id:'s6_08', who:'kevin', text:"Lequel ?"},
-    {id:'s6_09', who:'hortense', text:"Justement."},
     {call:function(){ addPiece("Déclaration de Kévin : a étalé les cartons mouillés sur le quai « pour faire un tapis »"); }},
     {call:function(){ setChap(4, 'Le quai'); }},
     {scene:'quai'},
     {who:null, text:"Retour sur le quai. Un collègue a apporté une poche de glace à Gégé."},
     {id:'s7_01', who:'hortense', text:"Gérard, vous aviez bien vos chaussures de sécurité. Je l'ai noté."},
-    {id:'s7_02', who:'gege', text:"Ah ! Vous voyez."},
-    {id:'s7_03', who:'hortense', text:"Lacées ?"},
     {id:'s7_04', who:'gege', text:"… Tony est arrivé en avance, j'ai couru. Je les aurais lacées après."},
     {who:null, text:"Pipo se pose à côté de Gégé et tire sur le lacet défait avec son bec."},
     {who:'pipo', text:"Rrrou."},
@@ -1403,13 +1367,12 @@ button{font-family:inherit}
       '<div class="pick">'+['kevin','jeanmi','brico'].map(function(k){ return '<button type="button" data-k="'+k+'"><span class="pf">'+PF[k]+'</span>'+NAMES[k]+'</button>'; }).join('')+'</div>'+
       '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+
       (hints ? '<div class="hints">'+hints+'</div>' : '')+
-      '<button class="btn ghost" id="btn-hint4" type="button"'+(S.h4>=3?' disabled':'')+'>'+(S.h4>=3?'Plus d\'indice':'Indice '+(S.h4+1)+' · 1 boulon')+'</button>'+
+      '<button class="btn ghost" id="btn-hint4" type="button"'+(S.h4>=3?' disabled':'')+'>'+(S.h4>=3?'Plus d\'indice':'Indice '+(S.h4+1)+' · −3 pts')+'</button>'+
     '</div>';
     panel.querySelectorAll('.pick button').forEach(function(b){ b.onclick = function(){ checkLiar(b.getAttribute('data-k')); }; });
     document.getElementById('btn-hint4').onclick = function(){
       if (S.h4 >= 3) return;
-      if (S.bolts < 1){ renderLiar("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
-      S.bolts--; S.h4++; hud(); renderLiar("Hortense glisse un indice dans ton carnet.", '');
+      S.h4++; S.v4 = Math.max(10, S.v4 - 3); hud(); renderLiar("Hortense glisse un indice dans ton carnet.", '');
     };
   }
   function checkLiar(k){
@@ -1445,13 +1408,12 @@ button{font-family:inherit}
       '<div class="qcm">'+QCM5.map(function(o){ return '<button type="button" class="btn choice" data-k="'+o.k+'"><b>'+o.k+'</b>'+esc(o.t)+'</button>'; }).join('')+'</div>'+
       (msg ? (who ? '<div class="who"><div class="pf" style="width:44px;height:44px">'+PF[who]+'</div><p class="fb '+cls+'" id="fb" style="margin:0;min-height:0">'+esc(msg)+'</p></div>' : '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>') : '')+
       (hints ? '<div class="hints">'+hints+'</div>' : '')+
-      '<button class="btn ghost" id="btn-hint5" type="button"'+(S.h5>=3?' disabled':'')+'>'+(S.h5>=3?'Plus d\'indice':'Indice '+(S.h5+1)+' · 1 boulon')+'</button>'+
+      '<button class="btn ghost" id="btn-hint5" type="button"'+(S.h5>=3?' disabled':'')+'>'+(S.h5>=3?'Plus d\'indice':'Indice '+(S.h5+1)+' · −3 pts')+'</button>'+
     '</div>';
     panel.querySelectorAll('.qcm button').forEach(function(b){ b.onclick = function(){ checkReflex(b.getAttribute('data-k')); }; });
     document.getElementById('btn-hint5').onclick = function(){
       if (S.h5 >= 3) return;
-      if (S.bolts < 1){ renderReflex("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
-      S.bolts--; S.h5++; hud(); renderReflex("Hortense glisse un indice dans ton carnet.", '');
+      S.h5++; S.v5 = Math.max(10, S.v5 - 3); hud(); renderReflex("Hortense glisse un indice dans ton carnet.", '');
     };
   }
   function checkReflex(k){
@@ -1525,17 +1487,12 @@ button{font-family:inherit}
   ]; }
   function c5After(){ return [
     {id:'s8_03', who:'hortense', text:"Le coupable, c'était… personne. Et un peu tout le monde. Tony, qui n'a pas appelé. Nadine, qui n'a pas eu le temps. Kévin, à qui personne n'avait rien expliqué. Madame, qui était pressée. Et Gérard, qui a voulu bien faire, vite."},
-    {id:'s8_04', who:'gege', text:"Et le pigeon ?"},
-    {id:'s8_05', who:'hortense', text:"Le pigeon est innocent. Pour une fois."},
-    {who:'pipo', text:"Rrrou."},
     {call:function(){ setChap(5, 'Épilogue'); }},
     {scene:'calme'},
     {who:null, text:"Quelques jours plus tard. La pluie s'est arrêtée. Chacun a pris un engagement."},
     {id:'ep_01', who:'tony', text:"J'appelle le site avant chaque rotation, surtout quand le planning change."},
     {id:'ep_02', who:'nadine', text:"Aucun nouvel arrivant ne va sur le quai avant son accueil sécurité. Téléphone ou pas."},
     {id:'ep_03', who:'kevin', text:"Pas de cartons au sol. Si le quai glisse, je préviens et je balise."},
-    {id:'ep_04', who:'brico', text:"Je demande de l'aide, mais j'attends que le quai soit sécurisé."},
-    {id:'ep_05', who:'jeanmi', text:"Je ne monte plus dans les bennes. … Je vais essayer."},
     {id:'ep_06', who:'gege', text:"Chaussures lacées, charges lourdes à deux, jamais à reculons. Quatorze ans d'expérience, ça n'empêche pas de glisser."},
     {id:'ep_07', who:'hortense', text:"Retenez ceci, {insp} : un accident n'a presque jamais un seul coupable. Il a une chaîne de causes. Il suffit de casser un maillon."}
   ]; }
@@ -1548,13 +1505,12 @@ button{font-family:inherit}
     S.mode = 'dialog';
     run(c5Intro(), startCauses);
   }
-  function hintBtn6(){ return '<button class="btn ghost" id="btn-hint6" type="button"'+(S.h6>=3?' disabled':'')+'>'+(S.h6>=3?'Plus d\'indice':'Indice '+(S.h6+1)+' · 1 boulon')+'</button>'; }
+  function hintBtn6(){ return '<button class="btn ghost" id="btn-hint6" type="button"'+(S.h6>=3?' disabled':'')+'>'+(S.h6>=3?'Plus d\'indice':'Indice '+(S.h6+1)+' · −3 pts')+'</button>'; }
   function hints6(){ var h=''; for (var i=0;i<S.h6;i++) h += '<div class="hint"><b>Indice '+(i+1)+'</b><span>'+esc(HINTS6[i])+'</span></div>'; return h ? '<div class="hints">'+h+'</div>' : ''; }
   function wireHint6(render){
     document.getElementById('btn-hint6').onclick = function(){
       if (S.h6 >= 3) return;
-      if (S.bolts < 1){ render("Il te faut un boulon doré pour acheter un indice.", 'coo'); return; }
-      S.bolts--; S.h6++; hud(); render("Hortense glisse un indice dans ton carnet.", '');
+      S.h6++; S.v6 = Math.max(10, S.v6 - 3); hud(); render("Hortense glisse un indice dans ton carnet.", '');
     };
   }
 
@@ -1562,7 +1518,7 @@ button{font-family:inherit}
   function startCauses(){ stopVoice(); S.mode = 'causes'; renderCauses("Sélectionne les 7 vraies causes, puis valide.", ''); }
   function renderCauses(msg, cls, marks){
     panel.innerHTML = '<div class="stack">'+
-      '<div class="puz-head"><div><span class="eyebrow dark">Énigme finale · 1/2</span><h2>La chaîne des causes</h2></div><span class="worth">'+S.v6+' pts en jeu</span></div>'+
+      '<div class="puz-head"><div><span class="eyebrow dark">Énigme finale</span><h2>La chaîne des causes</h2></div><span class="worth">'+S.v6+' pts en jeu</span></div>'+
       '<p style="margin:0">Parmi ces 10 cartes, sélectionne les <b>7 vraies causes</b> de l\'accident de Gégé. <span id="cnt">('+S.sel.length+'/7)</span></p>'+
       '<div class="causes">'+CAUSES.map(function(c){
         var on = S.sel.indexOf(c.id) >= 0, m = marks ? (on ? (c.ok ? ' ok' : ' ko') : '') : '';
@@ -1586,7 +1542,7 @@ button{font-family:inherit}
     if (good === 7 && bad === 0){
       sfxFound(); S.mode = 'wait';
       renderCauses("Les 7 bonnes causes. Jean-Mi, les chaussures et le fantôme étaient des fausses pistes.", 'good', true);
-      setTimeout(function(){ S.step6 = 2; startLinks(); }, 1800);
+      setTimeout(showChain, 1800);
       return;
     }
     sfxMiss();
@@ -1662,7 +1618,6 @@ button{font-family:inherit}
         '<dl class="score">'+
           '<div><dt>Vigilance</dt><dd>'+S.total+'<small style="font-size:13px"> / 270</small></dd></div>'+
           '<div><dt>Énigmes</dt><dd>'+played+'<small style="font-size:13px"> / 6</small></dd></div>'+
-          '<div><dt>Boulons</dt><dd>'+S.bolts+'</dd></div>'+
         '</dl>'+
         '<p class="rank">'+esc(title)+(S.name ? ' ' + esc(S.name) : '')+'</p>'+
         '<p>'+esc(r[1])+'</p>'+
