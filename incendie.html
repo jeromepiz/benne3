@@ -397,7 +397,7 @@ button{font-family:inherit}
   /* ---------- Son : bruitages synthétisés + voix ---------- */
   // Voix enregistrées : identifiant de réplique -> fichier (vide tant que les MP3 ne sont pas fournis)
   var VOICES = {};
-  ['ep_01','ep_02','ep_03','ep_04','ep_05','ep_06','ep_07','ep_07_f','s0_01','s0_01_f','s0_02','s0_03','s1_01','s1_01_f','s1_02','s1_03','s1_04','s1_04_f','s1_05','s1_06','s2_01','s2_02','s2_03','s2_04','s2_05','s2_06','s2_07','s2_08','s2_09','s2_10','s3_01','s3_02','s3_03','s3_04','s3_05','s3_06','s3_07','s3_08','s4_01','s4_02','s4_03','s4_04','s4_04_f','s4_05','s4_06','s4_07','s4_08','s4_09','s5_01','s5_02','s5_03','s5_04','s5_05','s5_06','s6_01','s6_02','s6_03','s6_04','s6_05','s6_06','s6_07','s6_08','s6_09','s7_01','s7_02','s7_03','s7_04','s7_05','s7_06','s7_07','s7_08','s7_09','s8_01','s8_02','s8_02_f','s8_03','s8_04','s8_05'].forEach(function(k){ VOICES[k] = ''+k+'.mp3'; });
+  ['f01','f01_f','f02','f03','f04','f04_f','f05','f06','f07','f08','f09','f10','f11','f12','f13','f14','f15','f16','f17','f17_f','f18','f19','f20','f21','f22','f23','f24','f25','f25_f'].forEach(function(k){ VOICES[k] = ''+k+'.mp3'; });
   var BLIP = {hortense:410, gege:230, nadine:520, tony:300, brico:600, kevin:380, jeanmi:260};
   var SND = {on:true, ctx:null, master:null, rainGain:null, voice:null, who:null};
   try { SND.on = localStorage.getItem('b3feu-sound') !== 'off'; } catch(e){}
@@ -531,15 +531,15 @@ button{font-family:inherit}
   var PROLOGUE = [
     {scene:'phone'},
     {who:null, text:"Mardi, 15h52. Sur ton bureau, le téléphone sonne."},
-    {who:'hortense', text:"{Insp}, ça a fumé à la déchetterie des Peupliers : la benne des déchets électriques a pris feu. Les pompiers ont éteint, personne de grièvement blessé, mais Gégé a respiré de la fumée.", choices:["J'arrive tout de suite.","Et le pigeon ?"]},
-    {who:'hortense', text:"Le pigeon n'a rien à voir là-dedans. Cette fois, on cherche ce qui a mis le feu, et pourquoi personne ne l'a arrêté à temps."},
+    {id:'f01', who:'hortense', text:"{Insp}, ça a fumé à la déchetterie des Peupliers : la benne des déchets électriques a pris feu. Les pompiers ont éteint, personne de grièvement blessé, mais Gégé a respiré de la fumée.", choices:["J'arrive tout de suite.","Et le pigeon ?"]},
+    {id:'f02', who:'hortense', text:"Le pigeon n'a rien à voir là-dedans. Cette fois, on cherche ce qui a mis le feu, et pourquoi personne ne l'a arrêté à temps."},
     {scene:'gate'},
     {who:null, text:"Sur place, une odeur de plastique brûlé flotte encore. La benne des déchets électriques est noircie, un ruban de sécurité barre le quai."},
     {who:'pipo', text:"Rrrou."},
     {scene:'ferraille'},
     {who:null, text:"Gégé est assis sur un seau, il tousse un peu. Nadine est restée près du bungalow, le registre brûlé sur les bords."},
-    {who:'gege', text:"J'ai vu de la fumée sortir de la benne. J'ai cherché l'extincteur… il n'était pas là."},
-    {who:'hortense', text:"{Insp}, regardons d'abord ce que la benne et le quai ont à nous dire."}
+    {id:'f03', who:'gege', text:"J'ai vu de la fumée sortir de la benne. J'ai cherché l'extincteur… il n'était pas là."},
+    {id:'f04', who:'hortense', text:"{Insp}, regardons d'abord ce que la benne et le quai ont à nous dire."}
   ];
   var C1_ITEMS = [
     {t:"Le panneau de tri est rouillé et se décolle de son poteau", ok:true},
@@ -550,15 +550,15 @@ button{font-family:inherit}
     {t:"Une trottinette électrique est coincée dans la benne, au milieu des appareils", ok:true}
   ];
   var C1_OUT = [
-    {who:'hortense', text:"Quatre anomalies, deux fausses pistes écartées. Une benne saturée, une trottinette où elle n'a rien à faire, un panneau abîmé, pas d'extincteur : ça ressemble déjà à une chaîne."},
+    {id:'f05', who:'hortense', text:"Quatre anomalies, deux fausses pistes écartées. Une benne saturée, une trottinette où elle n'a rien à faire, un panneau abîmé, pas d'extincteur : ça ressemble déjà à une chaîne."},
     {call:function(){ addPiece(PIECES_ALL[0]); }}
   ];
 
   var C2_INTRO = [
     {scene:'bungalow'},
     {who:null, text:"Le bungalow d'accueil. Nadine a le téléphone à la main, la consigne incendie est punaisée au mur."},
-    {who:'nadine', text:"J'ai appelé les pompiers dès que j'ai vu Gégé courir. Enfin… après avoir cherché le numéro, et après qu'on a essayé d'éteindre tout seuls."},
-    {who:'hortense', text:"Voyons ensemble ce que dit la consigne. Remettez les étapes dans l'ordre."}
+    {id:'f06', who:'nadine', text:"J'ai appelé les pompiers dès que j'ai vu Gégé courir. Enfin… après avoir cherché le numéro, et après qu'on a essayé d'éteindre tout seuls."},
+    {id:'f07', who:'hortense', text:"Voyons ensemble ce que dit la consigne. Remettez les étapes dans l'ordre."}
   ];
   var CARDS = {
     A:"Rejoindre le point de rassemblement et faire l'appel",
@@ -570,14 +570,14 @@ button{font-family:inherit}
   };
   var ORDER_SOL = ['B','E','D','A','C','F'];
   var C2_OUT = [
-    {who:'nadine', text:"Ce matin, on a commencé par l'étape D, puis on a cherché l'étape B. Dans le désordre, un feu avance plus vite que nous."},
+    {id:'f08', who:'nadine', text:"Cet après-midi, on a commencé par l'étape D, puis on a cherché l'étape B. Dans le désordre, un feu avance plus vite que nous."},
     {call:function(){ addPiece(PIECES_ALL[1]); }}
   ];
 
   var C3_INTRO = [
     {scene:'local'},
     {who:null, text:"Le local des batteries. Un seul bac, plein à ras bord, et un guide de tri qui se décolle du mur. Kévin, Jean-Mi et Mme Brico-Laure attendent, chacun avec sa version."},
-    {who:'hortense', text:"Quelqu'un a déposé la trottinette dans la benne des déchets électriques au lieu du local batteries. Je vous écoute."}
+    {id:'f09', who:'hortense', text:"Quelqu'un a déposé la trottinette dans la benne des déchets électriques au lieu du local batteries. Je vous écoute."}
   ];
   var SAYS = [
     {who:'kevin', t:"Ce n'est pas moi."},
@@ -585,19 +585,19 @@ button{font-family:inherit}
     {who:'brico', t:"C'est Jean-Mi ou Kévin."}
   ];
   var C3_OUT = [
-    {who:'brico', text:"Bon… oui. C'est la trottinette de mon petit-fils, la batterie était gonflée depuis l'été. Le panneau des batteries était tout décollé, je ne savais pas où la mettre. J'étais pressée."},
-    {who:'kevin', text:"Et c'est moi qui suis monté dans la benne pour tasser, parce qu'elle débordait. Personne ne m'avait dit qu'une batterie, ça ne s'écrase pas."},
-    {who:'jeanmi', text:"Moi, j'ai juste fumé ma clope. À la zone fumeurs, hein."},
-    {who:'hortense', text:"Ni accueil sécurité, ni panneau lisible, ni place dans la benne. Chaque oubli a laissé la porte ouverte."},
+    {id:'f10', who:'brico', text:"Bon… oui. C'est la trottinette de mon petit-fils, la batterie était gonflée depuis l'été. Le panneau des batteries était tout décollé, je ne savais pas où la mettre. J'étais pressée."},
+    {id:'f11', who:'kevin', text:"Et c'est moi qui suis monté dans la benne pour tasser, parce qu'elle débordait. Personne ne m'avait dit qu'une batterie, ça ne s'écrase pas."},
+    {id:'f12', who:'jeanmi', text:"Moi, j'ai juste fumé ma clope. À la zone fumeurs, hein."},
+    {id:'f13', who:'hortense', text:"Ni accueil sécurité, ni panneau lisible, ni place dans la benne. Chaque oubli a laissé la porte ouverte."},
     {call:function(){ addPiece(PIECES_ALL[2]); }}
   ];
 
   var C4_INTRO = [
     {scene:'quai'},
     {who:null, text:"Retour sur le quai. Tony arrive, le téléphone encore à la main."},
-    {who:'tony', text:"La benne devait être remplacée à midi. Mon camion est tombé en panne, et j'ai oublié de prévenir le site."},
+    {id:'f14', who:'tony', text:"La benne devait être remplacée à midi. Mon camion est tombé en panne, et j'ai oublié de prévenir le site."},
     {call:function(){ addPiece(PIECES_ALL[3]); }},
-    {who:'hortense', text:"Gérard, quand vous avez vu la fumée, que fallait-il faire en premier ?"}
+    {id:'f15', who:'hortense', text:"Gérard, quand vous avez vu la fumée, que fallait-il faire en premier ?"}
   ];
   var QCM = [
     {k:'A', t:"« Je vais chercher un seau d'eau et je le verse dans la benne. »", r:"De l'eau sur une batterie au lithium qui brûle : le feu repart et la fumée reste toxique."},
@@ -606,14 +606,14 @@ button{font-family:inherit}
     {k:'D', t:"« Je filme pour garder une preuve. »", r:"Une vidéo n'éteint rien et ne prévient personne : l'alerte d'abord."}
   ];
   var C4_OUT = [
-    {who:'gege', text:"Deux minutes pour alerter, contre trois jours de toux. C'est vrai que le calcul est vite fait."},
+    {id:'f16', who:'gege', text:"Deux minutes pour alerter, contre trois jours de toux. C'est vrai que le calcul est vite fait."},
     {who:'pipo', text:"Rrrou."}
   ];
 
   var C5_INTRO = [
     {scene:'bungalow'},
     {who:null, text:"Le bungalow d'accueil. Tout le monde est réuni : Gégé, Nadine, Tony, Mme Brico-Laure, Kévin et Jean-Mi. Pipo guette depuis la fenêtre."},
-    {who:'hortense', text:"Mesdames et messieurs, le responsable est dans cette pièce. {Insp}, à vous de conclure."}
+    {id:'f17', who:'hortense', text:"Mesdames et messieurs, le responsable est dans cette pièce. {Insp}, à vous de conclure."}
   ];
   var C5_ITEMS = [
     {t:"La benne DEEE n'a pas été remplacée à temps : elle débordait", ok:true},
@@ -629,17 +629,17 @@ button{font-family:inherit}
   ];
   var CHAIN = ["Rotation retardée : camion en panne, site non prévenu","Benne DEEE saturée, qui déborde","Panneau batteries illisible, usagère pressée","Trottinette à batterie gonflée jetée dans la benne","Kévin, sans accueil sécurité, monte tasser la benne","Batterie écrasée : emballement et départ de feu","Extincteur absent de son support, alerte tardive","Feu éteint par les pompiers · Gégé intoxiqué par la fumée"];
   var C5_OUT = [
-    {who:'hortense', text:"Le responsable ? Personne, et un peu tout le monde. Un camion en panne, un panneau décollé, un nouveau sans accueil, une usagère pressée, un extincteur absent. Chaque maillon a laissé passer le feu."},
-    {who:'gege', text:"Et le pigeon ?"},
-    {who:'hortense', text:"Innocent. Comme toujours."},
+    {id:'f18', who:'hortense', text:"Le responsable ? Personne, et un peu tout le monde. Un camion en panne, un panneau décollé, un nouveau sans accueil, une usagère pressée, un extincteur absent. Chaque maillon a laissé passer le feu."},
+    {id:'f19', who:'gege', text:"Et le pigeon ?"},
+    {id:'f20', who:'hortense', text:"Innocent. Comme toujours."},
     {call:function(){ setChap(5, 'Épilogue'); }},
     {scene:'calme'},
     {who:null, text:"Quelques jours plus tard, chacun a pris un engagement."},
-    {who:'tony', text:"Quand le camion a un souci, j'appelle le site tout de suite."},
-    {who:'nadine', text:"Le panneau des batteries est refait, bien lisible, et l'extincteur est vérifié chaque semaine."},
-    {who:'kevin', text:"Plus personne ne monte dans une benne. Et l'accueil sécurité, c'est avant le premier quai."},
-    {who:'gege', text:"Au moindre fumée : alerte d'abord, extincteur ensuite, jamais seul."},
-    {who:'hortense', text:"Retenez ceci, {insp} : un feu de benne a rarement une seule cause. Il suffit de casser un maillon."}
+    {id:'f21', who:'tony', text:"Quand le camion a un souci, j'appelle le site tout de suite."},
+    {id:'f22', who:'nadine', text:"Le panneau des batteries est refait, bien lisible, et l'extincteur est vérifié chaque semaine."},
+    {id:'f23', who:'kevin', text:"Plus personne ne monte dans une benne. Et l'accueil sécurité, c'est avant le premier quai."},
+    {id:'f24', who:'gege', text:"À la moindre fumée : alerte d'abord, extincteur ensuite, jamais seul."},
+    {id:'f25', who:'hortense', text:"Retenez ceci, {insp} : un feu de benne a rarement une seule cause. Il suffit de casser un maillon."}
   ];
 
   /* ---------- Scenes & rain ---------- */
