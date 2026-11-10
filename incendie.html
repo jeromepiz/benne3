@@ -512,9 +512,9 @@ button{font-family:inherit}
     2: ["Avant tout, il faut que quelqu'un sache qu'il y a un feu.",
         "On protège les personnes avant de s'occuper de la benne.",
         "Le site ne rouvre qu'une fois tout le monde en sécurité."],
-    3: ["Teste chaque suspect l'un après l'autre et compte les phrases vraies.",
-        "Si le coupable est Kévin ou Jean-Mi, deux phrases sont vraies. C'est déjà trop.",
-        "Une seule phrase est vraie : celle de Kévin. Donc les deux autres mentent."],
+    3: ["Suppose que Kévin est coupable : sa phrase est fausse, mais regarde les deux autres. Combien sont vraies ? Recommence avec chaque suspect : on cherche celui qui donne exactement une phrase vraie.",
+        "Si le coupable est Kévin, Jean-Mi et Mme Brico-Laure disent vrai. Si c'est Jean-Mi, Kévin et Mme Brico-Laure disent vrai. Dans les deux cas : deux vérités, c'est trop.",
+        "Reste Mme Brico-Laure : alors seul Kévin dit vrai (« ce n'est pas moi »), Jean-Mi et elle mentent. C'est le seul cas cohérent."],
     4: ["L'alerte et la mise à distance passent avant toute tentative d'extinction.",
         "On n'éteint pas une batterie au lithium avec n'importe quoi, et pas en y plongeant les mains."],
     5: ["Trois cartes sont des fausses pistes. L'une d'elles est franchement animale.",
@@ -922,7 +922,8 @@ button{font-family:inherit}
     function render(msg, cls){
       panel.innerHTML = '<div class="stack">'+head(3, 'Énigme n°3', 'Un seul dit vrai')+
         '<div class="says">'+SAYS.map(function(x){ return '<div class="say"><div class="pf">'+PF[x.who]+'</div><div><small>'+NAMES[x.who]+'</small><q>'+esc(x.t)+'</q></div></div>'; }).join('')+'</div>'+
-        '<p style="margin:0">Hortense sait qu\'<b>une seule</b> de ces phrases est vraie. Qui a jeté la trottinette dans la benne ?</p>'+
+        '<p style="margin:0">Hortense sait deux choses : <b>un seul des trois</b> a jeté la trottinette, et <b>une seule</b> de ces phrases est vraie (les deux autres sont fausses). Qui est le coupable ?</p>'+
+        '<p style="margin:0;font-size:.85em;opacity:.8">Méthode : suppose qu\'un suspect est coupable, puis compte combien de phrases deviennent vraies. « Jean-Mi ou Kévin » est vrai si c\'est l\'un, l\'autre, ou les deux.</p>'+
         '<div class="pick">'+['kevin','jeanmi','brico'].map(function(k){ return '<button type="button" data-k="'+k+'"><span class="pf">'+PF[k]+'</span>'+NAMES[k]+'</button>'; }).join('')+'</div>'+
         '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+ hintsHtml(3)+ hintBtn(3)+'</div>';
       panel.querySelectorAll('.pick button').forEach(function(b){ b.onclick = function(){ check(b.getAttribute('data-k')); }; });
