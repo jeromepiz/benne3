@@ -512,9 +512,9 @@ button{font-family:inherit}
     2: ["Avant tout, il faut que quelqu'un sache qu'il y a un feu.",
         "On protège les personnes avant de s'occuper de la benne.",
         "Le site ne rouvre qu'une fois tout le monde en sécurité."],
-    3: ["Suppose que Kévin est coupable : sa phrase est fausse, mais regarde les deux autres. Combien sont vraies ? Recommence avec chaque suspect : on cherche celui qui donne exactement une phrase vraie.",
-        "Si le coupable est Kévin, Jean-Mi et Mme Brico-Laure disent vrai. Si c'est Jean-Mi, Kévin et Mme Brico-Laure disent vrai. Dans les deux cas : deux vérités, c'est trop.",
-        "Reste Mme Brico-Laure : alors seul Kévin dit vrai (« ce n'est pas moi »), Jean-Mi et elle mentent. C'est le seul cas cohérent."],
+    3: ["Une phrase ne suffit pas : compare chaque témoignage aux pièces du dossier. Qui a une preuve qui le met hors de cause ?",
+        "Kévin est filmé sur le quai et Jean-Mi a badgé à la zone fumeurs : leurs alibis sont confirmés par des preuves.",
+        "Il reste Mme Brico-Laure : la caméra de l'entrée la montre avec la trottinette, et l'autocollant de dinosaure ressemble à un jouet d'enfant."],
     4: ["L'alerte et la mise à distance passent avant toute tentative d'extinction.",
         "On n'éteint pas une batterie au lithium avec n'importe quoi, et pas en y plongeant les mains."],
     5: ["Trois cartes sont des fausses pistes. L'une d'elles est franchement animale.",
@@ -580,9 +580,15 @@ button{font-family:inherit}
     {id:'f09', who:'hortense', text:"Quelqu'un a déposé la trottinette dans la benne des déchets électriques au lieu du local batteries. Je vous écoute."}
   ];
   var SAYS = [
-    {who:'kevin', t:"Ce n'est pas moi."},
-    {who:'jeanmi', t:"C'est Kévin."},
-    {who:'brico', t:"C'est Jean-Mi ou Kévin."}
+    {who:'kevin', t:"Je n'ai pas quitté le quai de l'après-midi."},
+    {who:'jeanmi', t:"J'étais à la zone fumeurs, point."},
+    {who:'brico', t:"Moi ? Je suis juste venue déposer des piles."}
+  ];
+  var PREUVES = [
+    {ic:'🎥', t:"Caméra du quai, 13h45", d:"Kévin et Nadine sanglent la benne ferraille. Ils ne bougent pas pendant dix minutes."},
+    {ic:'🪪', t:"Badge de la zone fumeurs", d:"Jean-Mi a badgé à 13h40 et n'est ressorti qu'à 13h55."},
+    {ic:'🎥', t:"Caméra de l'entrée, 13h50", d:"Mme Brico-Laure traverse le quai vers la benne DEEE, une trottinette électrique sous le bras. Elle repart les mains vides."},
+    {ic:'🛴', t:"La trottinette dans la benne", d:"Un autocollant de dinosaure est collé sur le plateau, et la batterie est gonflée."}
   ];
   var C3_OUT = [
     {id:'f10', who:'brico', text:"Bon… oui. C'est la trottinette de mon petit-fils, la batterie était gonflée depuis l'été. Le panneau des batteries était tout décollé, je ne savais pas où la mettre. J'étais pressée."},
@@ -920,10 +926,11 @@ button{font-family:inherit}
   function liarGame(){
     stopVoice(); S.mode = 'liar';
     function render(msg, cls){
-      panel.innerHTML = '<div class="stack">'+head(3, 'Énigme n°3', 'Un seul dit vrai')+
+      panel.innerHTML = '<div class="stack">'+head(3, 'Énigme n°3', 'Preuves contre témoignages')+
         '<div class="says">'+SAYS.map(function(x){ return '<div class="say"><div class="pf">'+PF[x.who]+'</div><div><small>'+NAMES[x.who]+'</small><q>'+esc(x.t)+'</q></div></div>'; }).join('')+'</div>'+
-        '<p style="margin:0">Hortense sait deux choses : <b>un seul des trois</b> a jeté la trottinette, et <b>une seule</b> de ces phrases est vraie (les deux autres sont fausses). Qui est le coupable ?</p>'+
-        '<p style="margin:0;font-size:.85em;opacity:.8">Méthode : suppose qu\'un suspect est coupable, puis compte combien de phrases deviennent vraies. « Jean-Mi ou Kévin » est vrai si c\'est l\'un, l\'autre, ou les deux.</p>'+
+        '<p style="margin:0">Trois témoignages. Vérifie-les avec les pièces du dossier : une preuve met un suspect hors de cause, une autre le met en cause.</p>'+
+        '<div class="says">'+PREUVES.map(function(x){ return '<div class="say"><div class="pf" style="font-size:26px;display:flex;align-items:center;justify-content:center;background:var(--feuille)">'+x.ic+'</div><div><small>'+x.t+'</small><q>'+esc(x.d)+'</q></div></div>'; }).join('')+'</div>'+
+        '<p style="margin:0">Qui a jeté la trottinette dans la benne ?</p>'+
         '<div class="pick">'+['kevin','jeanmi','brico'].map(function(k){ return '<button type="button" data-k="'+k+'"><span class="pf">'+PF[k]+'</span>'+NAMES[k]+'</button>'; }).join('')+'</div>'+
         '<p class="fb '+cls+'" id="fb">'+esc(msg)+'</p>'+ hintsHtml(3)+ hintBtn(3)+'</div>';
       panel.querySelectorAll('.pick button').forEach(function(b){ b.onclick = function(){ check(b.getAttribute('data-k')); }; });
@@ -932,12 +939,12 @@ button{font-family:inherit}
     function check(k){
       if (S.mode !== 'liar') return;
       if (k === 'brico'){
-        win(3, "Mme Brico-Laure ! Seule la phrase de Kévin est vraie : c'est cohérent.", render, function(){ run(C3_OUT, function(){ endScreen(3, 'La trottinette', 'Une usagère pressée, un panneau illisible et un nouveau sans accueil : la batterie est écrasée.', 'Chapitre 4 · Le réflexe'); }); }, 2200);
+        win(3, "Mme Brico-Laure ! Kévin et Jean-Mi ont des preuves pour eux. Elle, la caméra la montre avec la trottinette.", render, function(){ run(C3_OUT, function(){ endScreen(3, 'La trottinette', 'Une usagère pressée, un panneau illisible et un nouveau sans accueil : la batterie est écrasée.', 'Chapitre 4 · Le réflexe'); }); }, 2200);
         return;
       }
       var lost = lose(3, 25, 5);
-      var why = k === 'kevin' ? "Si c'est Kévin, la phrase de Jean-Mi et celle de Mme Brico-Laure sont vraies : deux vérités."
-                              : "Si c'est Jean-Mi, Kévin dit vrai et Mme Brico-Laure aussi : deux vérités.";
+      var why = k === 'kevin' ? "Kévin est filmé sur le quai à 13h45 : il ne pouvait pas être au local."
+                              : "Jean-Mi a badgé à la zone fumeurs de 13h40 à 13h55 : il ne pouvait pas déposer la trottinette.";
       render(why + (lost ? " −5 points Vigilance." : ""), 'bad');
     }
     render("Qui a jeté la trottinette ? Touche un suspect.", '');
